@@ -114,7 +114,7 @@ export const useCartStore = create<CartStore>()(
       getTotal: () => get().getSubtotal() - get().getDiscountAmount(),
     }),
     {
-      name: "look-cart",
+      name: "dvalor-cart",
       partialize: (state) => ({
         items: state.items,
         coupon: state.coupon,

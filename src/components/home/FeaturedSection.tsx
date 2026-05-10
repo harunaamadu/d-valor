@@ -4,98 +4,48 @@ import { motion } from "framer-motion";
 import { sectionVariants } from "@/lib/animations";
 import { Reveal, StaggerReveal } from "@/components/animations/reveal";
 import { SectionTitle } from "@/components/ui/custom/section-title";
-import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
+import ProductCard from "@/components/product/ProductCard";
+import ProductSkeleton from "@/components/product/ProductSkeleton";
+import QuickViewModal from "@/components/product/QuickViewModal";
+import { useState } from "react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface FeaturedProduct {
   id: string;
+  productId: string;
+  slug: string;
   name: string;
   price: number;
+  comparePrice?: number;
   imageUrl: string;
-  tag?: string;
-  slug: string;
+  hoverImageUrl?: string;
+  tag?: "New" | "Sale" | "Bestseller" | "Limited" | string;
+  rating?: number;
+  reviewCount?: number;
+  stock?: number;
 }
 
 interface FeaturedSectionProps {
-  /** Pass your fetched products; while undefined the skeletons render */
   products?: FeaturedProduct[];
 }
 
-// ─── Skeleton Card ────────────────────────────────────────────────────────────
-
-function ProductCardSkeleton() {
-  return (
-    <div className="flex flex-col gap-3">
-      {/* Image skeleton */}
-      <Skeleton className="w-full aspect-3/4" />
-      {/* Tag pill */}
-      <Skeleton className="h-4 w-14" />
-      {/* Name */}
-      <Skeleton className="h-5 w-3/4" />
-      {/* Price */}
-      <Skeleton className="h-4 w-1/3" />
-    </div>
-  );
-}
-
-// ─── Product Card ─────────────────────────────────────────────────────────────
-
-function ProductCard({ product }: { product: FeaturedProduct }) {
-  return (
-    <a
-      href={`/product/${product.slug}`}
-      className={cn(
-        "group relative flex flex-col gap-3 select-none",
-        "transition-all duration-300",
-      )}
-    >
-      {/* Image */}
-      <div className="relative w-full aspect-3/4 overflow-hidden bg-primary/5">
-        {/* Tag */}
-        {product.tag && (
-          <span className="absolute top-3 left-3 z-10 text-xs tracking-[0.15em] uppercase font-body bg-surface text-primary px-2.5 py-1">
-            {product.tag}
-          </span>
-        )}
-
-        {/* Placeholder — replace with Next Image */}
-        <div className="absolute inset-0 bg-primary/5 group-hover:scale-105 transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]" />
-        {/* <Image src={product.imageUrl} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]" sizes="(max-width:640px) 80vw, 25vw" /> */}
-
-        {/* Corner bracket */}
-        <span className="absolute top-3 right-3 w-4 h-4 border-t border-r border-accent/0 group-hover:border-accent/60 transition-colors duration-500" />
-      </div>
-
-      {/* Meta */}
-      <div className="flex flex-col gap-1">
-        <p className="text-xs tracking-[0.15em] uppercase font-body text-primary/40">
-          {product.tag ?? "D'valor"}
-        </p>
-        <h3 className="font-heading text-xl leading-tight text-primary group-hover:text-accent transition-colors duration-300">
-          {product.name}
-        </h3>
-        <p className="text-sm font-body text-primary/60">
-          GH₵ {product.price.toLocaleString("en-GH", { minimumFractionDigits: 2 })}
-        </p>
-      </div>
-    </a>
-  );
-}
-
-// ─── Grid layout ─────────────────────────────────────────────────────────────
+// ─── Grid ─────────────────────────────────────────────────────────────────────
 
 const SKELETON_COUNT = 4;
 
-function ProductGrid({ products }: { products?: FeaturedProduct[] }) {
-  const isLoading = !products;
-
-  if (isLoading) {
+function ProductGrid({
+  products,
+  onQuickView,
+}: {
+  products?: FeaturedProduct[];
+  onQuickView: (slug: string) => void;
+}) {
+  if (!products) {
     return (
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-10 md:gap-x-6 md:gap-y-14">
         {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
-          <ProductCardSkeleton key={i} />
+          <ProductSkeleton key={i} />
         ))}
       </div>
     );
@@ -110,8 +60,13 @@ function ProductGrid({ products }: { products?: FeaturedProduct[] }) {
       direction="up"
       threshold={0.05}
     >
-      {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+      {products.map((product, i) => (
+        <ProductCard
+          key={product.id}
+          {...product}
+          delay={Math.min(i * 0.06, 0.36)}
+          onQuickView={onQuickView}
+        />
       ))}
     </StaggerReveal>
   );
@@ -120,6 +75,8 @@ function ProductGrid({ products }: { products?: FeaturedProduct[] }) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function FeaturedSection({ products }: FeaturedSectionProps) {
+  const [quickViewSlug, setQuickViewSlug] = useState<string | null>(null);
+
   return (
     <Reveal variant="slide" direction="up" delay={0.1} threshold={0.05}>
       <motion.section
@@ -130,8 +87,6 @@ export default function FeaturedSection({ products }: FeaturedSectionProps) {
         className="w-full py-12 md:py-16 overflow-hidden"
       >
         <div className="wrapper">
-
-          {/* ── Title ── */}
           <SectionTitle
             eyebrow="Handpicked for You"
             heading="Featured Products"
@@ -139,11 +94,15 @@ export default function FeaturedSection({ products }: FeaturedSectionProps) {
             hintHref="/shop"
           />
 
-          {/* ── Grid ── */}
-          <ProductGrid products={products} />
-
+          <ProductGrid products={products} onQuickView={setQuickViewSlug} />
         </div>
       </motion.section>
+
+      <QuickViewModal
+        slug={quickViewSlug}
+        open={!!quickViewSlug}
+        onClose={() => setQuickViewSlug(null)}
+      />
     </Reveal>
   );
 }

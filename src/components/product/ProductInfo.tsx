@@ -58,11 +58,11 @@ function StarRow({ rating, count }: { rating: number; count?: number }) {
             size={12}
             strokeWidth={i < Math.floor(rating) ? 0 : 1.5}
             color="currentColor"
-            className={i < Math.floor(rating) ? "text-accent fill-accent" : "text-primary/20"}
+            className={i < Math.floor(rating) ? "text-accent fill-amber-300" : "text-primary/20"}
           />
         ))}
       </div>
-      <span className="text-xs font-body text-primary/50">
+      <span className="text-xs  text-primary/50">
         {rating.toFixed(1)}
         {count !== undefined && (
           <a href="#reviews" className="ml-1 hover:text-primary transition-colors duration-200">
@@ -157,7 +157,7 @@ export default function ProductInfo({
           {brand && (
             <Link
               href={`/brand/${brand.toLowerCase().replace(/\s+/g, "-")}`}
-              className="text-xs tracking-[0.22em] uppercase font-body text-accent hover:text-primary transition-colors duration-200"
+              className="text-xs tracking-[0.22em] uppercase  text-accent hover:text-primary transition-colors duration-200"
             >
               {brand}
             </Link>
@@ -169,7 +169,7 @@ export default function ProductInfo({
             <span
               key={badge}
               className={cn(
-                "text-[9px] tracking-[0.18em] uppercase font-body border px-2 py-0.5",
+                "text-[9px] tracking-[0.18em] uppercase  border px-2 py-0.5",
                 BADGE_STYLES[badge.toLowerCase()] ?? "border-primary/20 text-primary/50"
               )}
             >
@@ -200,12 +200,12 @@ export default function ProductInfo({
             GH₵ {price.toLocaleString("en-GH", { minimumFractionDigits: 2 })}
           </span>
           {comparePrice && comparePrice > price && (
-            <span className="font-body text-sm text-primary/35 line-through pb-0.5">
+            <span className=" text-sm text-primary/35 line-through pb-0.5">
               GH₵ {comparePrice.toLocaleString("en-GH", { minimumFractionDigits: 2 })}
             </span>
           )}
           {discountPct && (
-            <span className="text-[10px] tracking-[0.15em] uppercase font-body text-destructive/80 bg-destructive/8 px-2 py-0.5">
+            <span className="text-[10px] tracking-[0.15em] uppercase  text-destructive/80 bg-destructive/8 px-2 py-0.5">
               Save {discountPct}%
             </span>
           )}
@@ -243,14 +243,14 @@ export default function ProductInfo({
           {inStock ? (
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              <span className="text-xs font-body text-primary/50 tracking-wide">
+              <span className="text-xs  text-primary/50 tracking-wide">
                 {stock <= 5 ? `Only ${stock} left in stock` : "In stock — ships within 2–3 days"}
               </span>
             </div>
           ) : (
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-destructive/70" />
-              <span className="text-xs font-body text-destructive/70 tracking-wide">
+              <span className="text-xs  text-destructive/70 tracking-wide">
                 Out of stock
               </span>
             </div>
@@ -272,13 +272,13 @@ export default function ProductInfo({
               className={cn(
                 "flex-1 flex items-center justify-center gap-2.5",
                 "h-11 px-6",
-                "text-xs tracking-[0.2em] uppercase font-body",
+                "text-xs tracking-[0.2em] uppercase ",
                 "transition-all duration-300 relative overflow-hidden",
                 inStock
                   ? addedAnimation
                     ? "bg-accent text-primary"
                     : "bg-primary text-primary-foreground hover:bg-primary/90 group"
-                  : "bg-primary/30 text-primary/40 cursor-not-allowed"
+                  : "bg-primary/30 text-primary/60 cursor-not-allowed"
               )}
               aria-label={inStock ? "Add to bag" : "Out of stock"}
             >
@@ -309,7 +309,7 @@ export default function ProductInfo({
                 "w-11 h-11 flex items-center justify-center border transition-all duration-300",
                 wishlisted
                   ? "border-destructive/50 bg-destructive/5 text-destructive"
-                  : "border-primary/20 text-primary/50 hover:border-primary/40 hover:text-primary"
+                  : "border-primary/20 text-primary/50 hover:border-primary/60 hover:text-primary"
               )}
               aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
             >
@@ -324,7 +324,7 @@ export default function ProductInfo({
 
             {/* Share */}
             <button
-              className="w-11 h-11 flex items-center justify-center border border-primary/20 text-primary/40 hover:text-primary hover:border-primary/40 transition-all duration-300"
+              className="w-11 h-11 flex items-center justify-center border border-primary/20 text-primary/60 hover:text-primary hover:border-primary/60 transition-all duration-300"
               aria-label="Share product"
               onClick={() => navigator.share?.({ title: name, url: window.location.href })}
             >
@@ -339,7 +339,7 @@ export default function ProductInfo({
         <Reveal variant="fade" delay={0.44} duration={0.6}>
           <div className="flex flex-col gap-3 pt-1">
             <LineReveal className="h-px bg-primary/10" direction="left" delay={0.44} duration={0.5} />
-            <p className="text-sm font-body text-primary/60 leading-relaxed">
+            <p className="text-sm  text-primary/60 leading-relaxed">
               {description}
             </p>
           </div>
@@ -349,11 +349,11 @@ export default function ProductInfo({
       {/* ── Shipping perks ── */}
       <Reveal variant="fade" delay={0.5} duration={0.6}>
         <div className="flex flex-col gap-2 p-4 bg-primary/3 border border-primary/8">
-          <div className="flex items-center gap-3 text-xs font-body text-primary/60">
+          <div className="flex items-center gap-3 text-xs  text-primary/60">
             <HugeiconsIcon icon={TruckIcon} size={14} color="currentColor" strokeWidth={1.5} className="text-accent shrink-0" />
             <span>Free delivery on orders over <strong className="text-primary">GH₵ 500</strong></span>
           </div>
-          <div className="flex items-center gap-3 text-xs font-body text-primary/60">
+          <div className="flex items-center gap-3 text-xs  text-primary/60">
             <HugeiconsIcon icon={ArrowRight01Icon} size={14} color="currentColor" strokeWidth={1.5} className="text-accent shrink-0" />
             <span>Free returns within <strong className="text-primary">30 days</strong> of delivery</span>
           </div>
@@ -362,7 +362,7 @@ export default function ProductInfo({
 
       {/* ── SKU ── */}
       {sku && (
-        <p className="text-[10px] font-body text-primary/25 tracking-[0.15em]">
+        <p className="text-[10px]  text-primary/25 tracking-[0.15em]">
           SKU: {sku}
         </p>
       )}

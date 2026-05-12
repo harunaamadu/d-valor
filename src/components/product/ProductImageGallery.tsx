@@ -61,7 +61,7 @@ function Lightbox({
       onClick={onClose}
     >
       {/* Counter */}
-      <div className="absolute top-6 left-1/2 -translate-x-1/2 z-10 text-xs text-primary-foreground/50 tracking-[0.2em] font-body">
+      <div className="absolute top-6 left-1/2 -translate-x-1/2 z-10 text-xs text-primary-foreground/50 tracking-[0.2em] ">
         {String(index + 1).padStart(2, "0")} / {String(images.length).padStart(2, "0")}
       </div>
 
@@ -219,13 +219,13 @@ export default function ProductImageGallery({
 
             {/* Tag */}
             {tag && (
-              <span className="absolute top-4 left-4 z-10 text-[9px] tracking-[0.2em] uppercase font-body bg-primary text-primary-foreground px-2.5 py-1">
+              <span className="absolute top-4 left-4 z-10 text-[9px] tracking-[0.2em] uppercase  bg-primary text-primary-foreground px-2.5 py-1">
                 {tag}
               </span>
             )}
 
             {/* Zoom hint */}
-            <div className="absolute bottom-4 right-4 z-10 flex items-center gap-1.5 text-[9px] tracking-[0.18em] uppercase font-body text-primary-foreground/70 bg-primary/40 backdrop-blur-sm px-2.5 py-1.5 opacity-0 group-hover:opacity-100 pointer-events-none">
+            <div className="absolute bottom-4 right-4 z-10 flex items-center gap-1.5 text-[9px] tracking-[0.18em] uppercase  text-primary-foreground/70 bg-primary/60 backdrop-blur-sm px-2.5 py-1.5 opacity-0 group-hover:opacity-100 pointer-events-none">
               <HugeiconsIcon icon={ZoomInAreaIcon} size={11} color="currentColor" strokeWidth={1.5} />
               Zoom
             </div>

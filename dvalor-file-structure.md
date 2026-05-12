@@ -410,7 +410,7 @@ styles/
 
   /* Typography */
   --font-heading: 'Cormorant Garamond', serif;
-  --font-body: 'Jost', sans-serif;
+  --: 'Jost', sans-serif;
   --font-mono: 'DM Mono', monospace;
 
   /* Layout */
@@ -520,4 +520,4 @@ NEXT_PUBLIC_SITE_URL=
 
 ---
 
-*Reply "start" or name a section (e.g. "build the Navbar", "build the Hero", "build the ProductCard") and we'll begin coding.*
+*Let create a real product with sanity*

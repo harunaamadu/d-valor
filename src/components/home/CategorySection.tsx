@@ -68,19 +68,19 @@ function ForYouCard({ name }: { name: string }) {
 
         {/* Text */}
         <div className="flex flex-col gap-1">
-          <p className="text-xs tracking-[0.18em] uppercase font-body text-primary/40">
+          <p className="text-xs tracking-[0.18em] uppercase  text-primary/60">
             Curated for
           </p>
           <p className="font-heading text-2xl leading-tight text-primary capitalize">
             {name}
           </p>
-          <p className="text-xs font-body text-primary/50 leading-relaxed mt-1 max-w-35">
+          <p className="text-xs  text-primary/50 leading-relaxed mt-1 max-w-35">
             Picks tailored to your taste &amp; history
           </p>
         </div>
 
         {/* CTA arrow */}
-        <div className="flex items-center gap-2 text-xs tracking-[0.15em] uppercase font-body text-accent">
+        <div className="flex items-center gap-2 text-xs tracking-[0.15em] uppercase  text-accent">
           <span>Explore</span>
           <HugeiconsIcon
             icon={ArrowRight01Icon}
@@ -141,7 +141,7 @@ function CategoryCard({ cat }: { cat: Category }) {
           <div className="overflow-hidden">
             <p
               className={cn(
-                "text-xs font-body leading-relaxed text-white/70",
+                "text-xs  leading-relaxed text-white/70",
                 "max-h-0 opacity-0 -translate-y-2",
                 "group-hover:max-h-16 group-hover:opacity-100 group-hover:translate-y-0",
                 "transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)]",

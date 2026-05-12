@@ -75,7 +75,7 @@ function RatingSummary({
           {average.toFixed(1)}
         </span>
         <Stars rating={average} size={14} />
-        <span className="text-xs font-body text-primary/40 tracking-wide mt-1">
+        <span className="text-xs  text-primary/60 tracking-wide mt-1">
           {total.toLocaleString()} reviews
         </span>
       </div>
@@ -87,7 +87,7 @@ function RatingSummary({
           const pct = total > 0 ? (count / total) * 100 : 0;
           return (
             <div key={star} className="flex items-center gap-3">
-              <span className="text-xs font-body text-primary/50 w-3 shrink-0">{star}</span>
+              <span className="text-xs  text-primary/50 w-3 shrink-0">{star}</span>
               <HugeiconsIcon icon={StarIcon} size={10} strokeWidth={0} color="currentColor" className="text-accent fill-accent shrink-0" />
               <div className="flex-1 h-1 bg-primary/8 overflow-hidden">
                 <motion.div
@@ -99,7 +99,7 @@ function RatingSummary({
                   style={{ width: `${pct}%` }}
                 />
               </div>
-              <span className="text-[10px] font-body text-primary/35 w-7 text-right shrink-0">
+              <span className="text-[10px]  text-primary/35 w-7 text-right shrink-0">
                 {count}
               </span>
             </div>
@@ -129,7 +129,7 @@ function ReviewCard({ review }: { review: Review }) {
           <div className="flex items-center gap-3 flex-wrap">
             <Stars rating={review.rating} />
             {review.verified && (
-              <span className="text-[9px] tracking-[0.18em] uppercase font-body text-emerald-600 bg-emerald-500/10 px-2 py-0.5">
+              <span className="text-[9px] tracking-[0.18em] uppercase  text-emerald-600 bg-emerald-500/10 px-2 py-0.5">
                 Verified Purchase
               </span>
             )}
@@ -140,13 +140,13 @@ function ReviewCard({ review }: { review: Review }) {
             </p>
           )}
         </div>
-        <span className="text-[10px] font-body text-primary/30 tracking-wide shrink-0">
+        <span className="text-[10px]  text-primary/30 tracking-wide shrink-0">
           {date}
         </span>
       </div>
 
       {/* Body */}
-      <p className="text-sm font-body text-primary/65 leading-relaxed">
+      <p className="text-sm  text-primary/65 leading-relaxed">
         {review.body}
       </p>
 
@@ -168,11 +168,11 @@ function ReviewCard({ review }: { review: Review }) {
       {/* Footer */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-body text-primary/50">{review.author}</span>
+          <span className="text-xs  text-primary/50">{review.author}</span>
           {review.attribute && (
             <>
               <span className="text-primary/20">·</span>
-              <span className="text-xs font-body text-primary/35">{review.attribute}</span>
+              <span className="text-xs  text-primary/35">{review.attribute}</span>
             </>
           )}
         </div>
@@ -182,7 +182,7 @@ function ReviewCard({ review }: { review: Review }) {
             if (!voted) { setHelpful((h) => h + 1); setVoted(true); }
           }}
           className={cn(
-            "flex items-center gap-1.5 text-[10px] tracking-[0.12em] uppercase font-body transition-colors duration-200",
+            "flex items-center gap-1.5 text-[10px] tracking-[0.12em] uppercase  transition-colors duration-200",
             voted ? "text-accent" : "text-primary/30 hover:text-primary/60"
           )}
           aria-label="Mark as helpful"
@@ -227,7 +227,7 @@ export default function ProductReviews({
       <Reveal variant="slide" direction="up" delay={0.05} threshold={0.05}>
         <div className="flex items-end justify-between">
           <h2 className="font-heading text-3xl text-primary">Customer Reviews</h2>
-          <button className="hidden md:flex items-center gap-2 text-xs tracking-[0.18em] uppercase font-body border border-primary/20 px-4 py-2.5 hover:border-primary/50 hover:bg-primary/4 transition-all duration-300 text-primary/60 hover:text-primary">
+          <button className="hidden md:flex items-center gap-2 text-xs tracking-[0.18em] uppercase  border border-primary/20 px-4 py-2.5 hover:border-primary/50 hover:bg-primary/4 transition-all duration-300 text-primary/60 hover:text-primary">
             <HugeiconsIcon icon={PlusSignIcon} size={12} color="currentColor" strokeWidth={2} />
             Write a Review
           </button>
@@ -249,13 +249,13 @@ export default function ProductReviews({
       {reviews.length > 1 && (
         <Reveal variant="fade" delay={0.15} threshold={0.05}>
           <div className="flex items-center gap-1 flex-wrap">
-            <span className="text-xs font-body text-primary/35 tracking-wide mr-2">Sort:</span>
+            <span className="text-xs  text-primary/35 tracking-wide mr-2">Sort:</span>
             {(["recent", "helpful", "high", "low"] as const).map((opt) => (
               <button
                 key={opt}
                 onClick={() => setSortBy(opt)}
                 className={cn(
-                  "text-[10px] tracking-[0.15em] uppercase font-body px-3 py-1.5 border transition-all duration-200",
+                  "text-[10px] tracking-[0.15em] uppercase  px-3 py-1.5 border transition-all duration-200",
                   sortBy === opt
                     ? "border-primary/50 bg-primary/5 text-primary"
                     : "border-primary/10 text-primary/35 hover:border-primary/30 hover:text-primary/60"
@@ -273,9 +273,9 @@ export default function ProductReviews({
         <Reveal variant="fade" threshold={0.05}>
           <div className="flex flex-col items-center justify-center py-16 gap-4 border border-dashed border-primary/15">
             <Stars rating={0} size={24} />
-            <p className="font-heading text-xl text-primary/40">No reviews yet</p>
-            <p className="text-xs text-primary/25 font-body">Be the first to share your experience</p>
-            <button className="mt-2 text-xs tracking-[0.18em] uppercase font-body border border-primary/20 px-5 py-2.5 hover:border-primary/50 transition-colors duration-300 text-primary/60 hover:text-primary">
+            <p className="font-heading text-xl text-primary/60">No reviews yet</p>
+            <p className="text-xs text-primary/25 ">Be the first to share your experience</p>
+            <button className="mt-2 text-xs tracking-[0.18em] uppercase  border border-primary/20 px-5 py-2.5 hover:border-primary/50 transition-colors duration-300 text-primary/60 hover:text-primary">
               Write a Review
             </button>
           </div>
@@ -302,7 +302,7 @@ export default function ProductReviews({
         <Reveal variant="fade" threshold={0.05}>
           <button
             onClick={() => setShowAll((p) => !p)}
-            className="w-full py-3 border border-primary/15 text-xs tracking-[0.2em] uppercase font-body text-primary/45 hover:text-primary hover:border-primary/40 hover:bg-primary/3 transition-all duration-300"
+            className="w-full py-3 border border-primary/15 text-xs tracking-[0.2em] uppercase  text-primary/45 hover:text-primary hover:border-primary/60 hover:bg-primary/3 transition-all duration-300"
           >
             {showAll
               ? "Show Less"
@@ -313,7 +313,7 @@ export default function ProductReviews({
 
       {/* ── Mobile write CTA ── */}
       <Reveal variant="fade" threshold={0.05} className="md:hidden">
-        <button className="w-full py-3 border border-primary/20 text-xs tracking-[0.18em] uppercase font-body text-primary/50 hover:text-primary hover:border-primary/40 transition-all duration-300 flex items-center justify-center gap-2">
+        <button className="w-full py-3 border border-primary/20 text-xs tracking-[0.18em] uppercase  text-primary/50 hover:text-primary hover:border-primary/60 transition-all duration-300 flex items-center justify-center gap-2">
           <HugeiconsIcon icon={PlusSignIcon} size={12} color="currentColor" strokeWidth={2} />
           Write a Review
         </button>

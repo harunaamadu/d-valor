@@ -92,7 +92,7 @@ export default function ProductQuantityInput({
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: direction === "up" ? -12 : 12, opacity: 0 }}
             transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute font-body font-medium text-primary select-none pointer-events-none"
+            className="absolute  font-medium text-primary select-none pointer-events-none"
           >
             {value}
           </motion.span>

@@ -1,6 +1,12 @@
-import CategorySection from "@/components/home/CategorySection";
-import FeaturedSection from "@/components/home/FeaturedSection";
-import HeroSection from "@/components/home/HeroSection";
+import {
+  CategorySection,
+  EditorialPromoGrid,
+  FeaturedSection,
+  HeroSection,
+  BlogSection,
+  InstagramSection,
+  SubscriptionSection,
+} from "@/components/home";
 import { FAKE_FEATURED_PRODUCTS } from "@/data/fake-products";
 
 export default function Home() {
@@ -9,6 +15,10 @@ export default function Home() {
       <HeroSection />
       <CategorySection />
       <FeaturedSection products={FAKE_FEATURED_PRODUCTS} />
+      <EditorialPromoGrid />
+      <BlogSection />
+      <InstagramSection />
+      <SubscriptionSection />
     </main>
   );
 }

@@ -1,29 +1,150 @@
-// ─── Featured Product Type ────────────────────────────────────────────────────
-// This mirrors the shape that will eventually come from Sanity.
-// When you wire up Sanity, replace this with the inferred type from your GROQ
-// query (e.g. using `import type { FeaturedProductQueryResult } from "@/sanity/types"`).
+import {
+  ColorOption,
+  SizeOption,
+} from "@/components/product/ProductVariantSelector";
+
+// ─────────────────────────────────────────────────────────────
+// Product Image
+// ─────────────────────────────────────────────────────────────
+
+export interface ProductImage {
+  /** Image URL */
+  src: string;
+
+  /** Accessible alt text */
+  alt: string;
+
+  /** Optional blur placeholder */
+  blurDataURL?: string;
+
+  /** Marks the primary gallery image */
+  isPrimary?: boolean;
+}
+
+// ─────────────────────────────────────────────────────────────
+// Product Badge / Tag
+// ─────────────────────────────────────────────────────────────
+
+export type ProductTag =
+  | "New"
+  | "Sale"
+  | "Bestseller"
+  | "Limited"
+  | "Popular"
+  | "Trending"
+  | "Exclusive";
+
+// ─────────────────────────────────────────────────────────────
+// Featured Product
+// ─────────────────────────────────────────────────────────────
 
 export interface FeaturedProduct {
+  // ─── Identification ───────────────────────────────────────
+
+  /** Variant-level id (used for cart item keys) */
+  id: string;
+
+  /** Product document id */
   productId: string;
-  name: string;
-  /** Price in GHS (Ghana Cedis) */
-  price: number;
-  /** Full-resolution product image URL */
-  imageUrl: string;
-  /** Short category/collection tag e.g. "Serum", "Limited Edition" */
-  tag?: string;
-  /** URL-safe slug for the product detail page */
+
+  /** Product slug → /products/[slug] */
   slug: string;
-  /** Brief one-liner shown on hover or in quick-view */
+
+  /** Optional SKU */
+  sku?: string;
+
+  // ─── Basic Info ───────────────────────────────────────────
+
+  /** Product title */
+  name: string;
+
+  /** Brand / manufacturer */
+  brand?: string;
+
+  /** Short marketing subtitle */
+  subtitle?: string;
+
+  /** Product description */
   description?: string;
-  /** Whether the product is marked as new */
+
+  // ─── Pricing ──────────────────────────────────────────────
+
+  /** Current selling price in GHS */
+  price: number;
+
+  /** Previous/original price */
+  comparePrice?: number;
+
+  /** Currency code */
+  currency?: "GHS" | "USD" | "EUR";
+
+  // ─── Media ────────────────────────────────────────────────
+
+  /** Main thumbnail image */
+  imageUrl: string;
+
+  /** Hover image */
+  hoverImageUrl?: string;
+
+  /** Product gallery */
+  images?: ProductImage[];
+
+  // ─── Variants ─────────────────────────────────────────────
+
+  /** Available color variants */
+  colors?: ColorOption[];
+
+  /** Available size variants */
+  sizes?: SizeOption[];
+
+  /** Selected/default variant id */
+  variantId?: string;
+
+  // ─── Product Labels ───────────────────────────────────────
+
+  /** Product badge */
+  tag?: ProductTag | string;
+
   isNew?: boolean;
-  /** Whether the product is currently on sale */
-  onSale?: boolean;
-  /** Original price before discount (only relevant when onSale is true) */
-  originalPrice?: number;
-  /** Average star rating out of 5 */
+
+  isFeatured?: boolean;
+
+  isBestSale?: boolean;
+
+  isTrending?: boolean;
+
+  // ─── Reviews & Ratings ────────────────────────────────────
+
+  /** Average rating out of 5 */
   rating?: number;
-  /** Total number of reviews */
+
+  /** Number of reviews */
   reviewCount?: number;
+
+  // ─── Inventory ────────────────────────────────────────────
+
+  /** Quantity in stock */
+  stock?: number;
+
+  /** Whether product is available */
+  inStock?: boolean;
+
+  /** Low stock warning threshold */
+  lowStockThreshold?: number;
+
+  // ─── SEO / Metadata ───────────────────────────────────────
+
+  /** SEO title */
+  seoTitle?: string;
+
+  /** SEO description */
+  seoDescription?: string;
+
+  // ─── Dates ────────────────────────────────────────────────
+
+  /** Created timestamp */
+  createdAt?: string;
+
+  /** Updated timestamp */
+  updatedAt?: string;
 }

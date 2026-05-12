@@ -354,6 +354,10 @@ interface ImageRevealProps {
   duration?: number;
   threshold?: number;
   margin?: string;
+  /**
+   * repeat=false (default for images) — once revealed, stays visible.
+   * Set to true only if you want the curtain to re-close on scroll-out.
+   */
   repeat?: boolean;
 }
 
@@ -365,34 +369,61 @@ export function ImageReveal({
   duration  = 1.0,
   threshold = 0.15,
   margin    = "0px",
-  repeat    = true,
+  repeat    = false,           // ← images stay revealed after first trigger
 }: ImageRevealProps) {
   const ref = React.useRef<HTMLDivElement>(null);
+
+  // once: true  → fires once and never re-hides  (repeat=false)
+  // once: false → re-hides when element leaves    (repeat=true)
   const isInView = useInView(ref, {
     amount: threshold,
     margin: margin as `${number}px ${number}px ${number}px ${number}px` | undefined,
     once: !repeat,
   });
 
-  const clipStart =
-    direction === "left"  ? "inset(0 100% 0 0)" :
-    direction === "right" ? "inset(0 0 0 100%)" :
-    direction === "down"  ? "inset(100% 0 0 0)" :
-                            "inset(0 0 100% 0)";   // "up" default
+  const axis = direction === "left" || direction === "right" ? "x" : "y";
+  const hiddenOffset =
+    direction === "left" ? "-100%" :
+    direction === "right" ? "100%" :
+    direction === "down" ? "-100%" :
+    "100%";
+  const counterOffset =
+    direction === "left" ? "100%" :
+    direction === "right" ? "-100%" :
+    direction === "down" ? "100%" :
+    "-100%";
+  const hiddenMask = { [axis]: hiddenOffset } as Record<"x" | "y", string>;
+  const hiddenContent = { [axis]: counterOffset } as Record<"x" | "y", string>;
+  const visibleState = { [axis]: "0%" } as Record<"x" | "y", string>;
 
   return (
-    <motion.div
+    <div
       ref={ref}
-      className={className}
-      initial={{ clipPath: clipStart }}
-      animate={{ clipPath: isInView ? "inset(0 0 0 0)" : clipStart }}
-      transition={{
-        duration,
-        ease: [0.76, 0, 0.24, 1],
-        delay,
-      }}
+      className={`overflow-hidden ${className ?? ""}`.trim()}
     >
-      {children}
-    </motion.div>
+      <motion.div
+        className="size-full"
+        initial={hiddenMask}
+        animate={isInView ? visibleState : hiddenMask}
+        transition={{
+          duration,
+          ease: [0.76, 0, 0.24, 1],
+          delay,
+        }}
+      >
+        <motion.div
+          className="size-full"
+          initial={hiddenContent}
+          animate={isInView ? visibleState : hiddenContent}
+          transition={{
+            duration,
+            ease: [0.76, 0, 0.24, 1],
+            delay,
+          }}
+        >
+          {children}
+        </motion.div>
+      </motion.div>
+    </div>
   );
 }

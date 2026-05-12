@@ -58,7 +58,7 @@ export function SectionTitle({
                 duration={0.5}
                 delay={delay + 0.05}
               />
-              <span className="text-xs tracking-[0.22em] uppercase font-body text-primary/50">
+              <span className="text-xs tracking-[0.22em] uppercase  text-primary/50">
                 {eyebrow}
               </span>
             </div>
@@ -85,7 +85,7 @@ export function SectionTitle({
           variant="fade"
           delay={delay + 0.45}
           duration={0.5}
-          className="hidden md:flex items-center gap-2 text-xs tracking-[0.15em] uppercase font-body text-primary/40 shrink-0"
+          className="hidden md:flex items-center gap-2 text-xs tracking-[0.15em] uppercase  text-primary/60 shrink-0"
         >
           {hintHref ? (
             <a

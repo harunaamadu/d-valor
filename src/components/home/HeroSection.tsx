@@ -472,7 +472,7 @@ export default function HeroSection() {
               {String(current + 1).padStart(2, "0")}
             </span>
             <div className="w-px h-4 bg-primary/20" />
-            <span className="text-xs tracking-[0.15em] text-primary/40">
+            <span className="text-xs tracking-[0.15em] text-primary/60">
               {String(slides.length).padStart(2, "0")}
             </span>
           </div>

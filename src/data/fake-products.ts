@@ -1,120 +1,376 @@
+import {
+  ColorOption,
+  SizeOption,
+} from "@/components/product/ProductVariantSelector";
 import type { FeaturedProduct } from "@/types/featured-product.types";
 
 // ─── Fake Products ────────────────────────────────────────────────────────────
-// Placeholder data used during development.
-// Swap `FAKE_FEATURED_PRODUCTS` for your Sanity GROQ query result when ready.
+// Development placeholder — delete this file and update the FeaturedSection
+// import once you wire up your Sanity GROQ query.
 //
-// Sanity migration checklist:
-//   1. Define a `product` document schema in `sanity/schemas/product.ts`
-//   2. Write a GROQ query in `sanity/queries/products.ts`
-//   3. Fetch in your Server Component: `const products = await getFeaturedProducts()`
-//   4. Delete this file and update the import in `FeaturedSection.tsx`
+// Sanity GROQ tip — project fields to match FeaturedProduct:
+//   *[_type == "product" && featured == true]{
+//     "id":          _id,
+//     "productId":   _id,
+//     "slug":        slug.current,
+//     name,
+//     price,
+//     "comparePrice": comparePrice,
+//     "imageUrl":    image.asset->url,
+//     "hoverImageUrl": hoverImage.asset->url,
+//     tag, rating, reviewCount, stock
+//   }
 
 export const FAKE_FEATURED_PRODUCTS: FeaturedProduct[] = [
   {
+    id: "var_001",
     productId: "prod_001",
-    name: "Luminous Glow Serum",
-    price: 320,
-    imageUrl: "/images/products/luminous-glow-serum.jpg",
-    tag: "Bestseller",
     slug: "luminous-glow-serum",
-    description: "A brightening serum with Vitamin C and 24k gold that visibly evens skin tone overnight.",
-    isNew: false,
-    onSale: false,
+    name: "Luminous Glow Serum",
+    brand: "D'valor",
+    price: 320,
+    imageUrl:
+      "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=600&auto=format&fit=crop",
+    hoverImageUrl:
+      "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=600&auto=format&fit=crop",
+    images: [
+      {
+        src: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=600&auto=format&fit=crop",
+        alt: "Luminous Glow Serum",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1606830733744-0ad4bfa8b3c5?w=600&auto=format&fit=crop",
+        alt: "Luminous Glow Serum texture",
+      },
+    ],
+    description:
+      "A brightening serum formulated with Vitamin C, niacinamide, and rare plant extracts to visibly reduce dark spots and enhance radiance.",
+    colors: [
+      {
+        label: "Original",
+        hex: "#f5e6cc",
+        variantId: "v-original",
+        inStock: true,
+      },
+      {
+        label: "Intensive",
+        hex: "#e8c99a",
+        variantId: "v-intensive",
+        inStock: true,
+      },
+      {
+        label: "Sensitive",
+        hex: "#fdf0e0",
+        variantId: "v-sensitive",
+        inStock: false,
+      },
+    ],
+    sizes: [
+      {
+        label: "30ml",
+        variantId: "s-30",
+        inStock: true,
+        description: "Travel-friendly size",
+      },
+      {
+        label: "50ml",
+        variantId: "s-50",
+        inStock: true,
+        description: "Full-size",
+      },
+      {
+        label: "100ml",
+        variantId: "s-100",
+        inStock: true,
+        description: "Luxury size",
+      },
+    ],
+    tag: "Bestseller",
     rating: 4.8,
     reviewCount: 142,
+    stock: 12,
+    inStock: true,
+    isFeatured: true,
   },
+
   {
+    id: "var_002",
     productId: "prod_002",
-    name: "Velvet Rose Face Cream",
-    price: 275,
-    imageUrl: "/images/products/velvet-rose-face-cream.jpg",
-    tag: "New Arrival",
     slug: "velvet-rose-face-cream",
-    description: "Whipped rose-infused cream that melts into skin, leaving a soft matte finish.",
-    isNew: true,
-    onSale: false,
+    name: "Velvet Rose Face Cream",
+    brand: "D'valor",
+    price: 275,
+    imageUrl:
+      "https://images.unsplash.com/photo-1570194065650-d99fb4b38b5b?w=600&auto=format&fit=crop",
+    hoverImageUrl:
+      "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=600&auto=format&fit=crop",
+    images: [
+      {
+        src: "https://images.unsplash.com/photo-1570194065650-d99fb4b38b5b?w=600&auto=format&fit=crop",
+        alt: "Velvet Rose Face Cream",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=600&auto=format&fit=crop",
+        alt: "Velvet Rose Face Cream texture",
+      },
+    ],
+    description:
+      "A luxurious rose-infused face cream designed to deeply hydrate, smooth fine lines, and restore natural skin softness.",
+    colors: [
+      {
+        label: "Rose Glow",
+        hex: "#f6d4d4",
+        variantId: "v-rose",
+        inStock: true,
+      },
+      {
+        label: "Soft Beige",
+        hex: "#e8d0c2",
+        variantId: "v-beige",
+        inStock: true,
+      },
+    ],
+    sizes: [
+      {
+        label: "50ml",
+        variantId: "s-50",
+        inStock: true,
+        description: "Standard size",
+      },
+      {
+        label: "100ml",
+        variantId: "s-100",
+        inStock: true,
+        description: "Family size",
+      },
+    ],
+    tag: "New",
     rating: 4.6,
     reviewCount: 58,
+    stock: 20,
+    inStock: true,
+    isFeatured: true,
   },
+
   {
+    id: "var_003",
     productId: "prod_003",
-    name: "Shea Butter Body Elixir",
-    price: 180,
-    originalPrice: 220,
-    imageUrl: "/images/products/shea-butter-body-elixir.jpg",
-    tag: "Sale",
     slug: "shea-butter-body-elixir",
-    description: "Cold-pressed Ghanaian shea whipped with argan oil for all-day body hydration.",
-    isNew: false,
-    onSale: true,
+    name: "Shea Butter Body Elixir",
+    brand: "D'valor",
+    price: 180,
+    comparePrice: 220,
+    imageUrl:
+      "https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=600&auto=format&fit=crop",
+    hoverImageUrl:
+      "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=600&auto=format&fit=crop",
+    images: [
+      {
+        src: "https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=600&auto=format&fit=crop",
+        alt: "Shea Butter Body Elixir",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=600&auto=format&fit=crop",
+        alt: "Shea Butter Body Elixir texture",
+      },
+    ],
+    description:
+      "An ultra-rich shea butter body treatment that nourishes dry skin and delivers long-lasting softness and glow.",
+    colors: [
+      {
+        label: "Classic Shea",
+        hex: "#d8b98a",
+        variantId: "v-classic",
+        inStock: true,
+      },
+      {
+        label: "Honey Gold",
+        hex: "#e3c48f",
+        variantId: "v-honey",
+        inStock: true,
+      },
+    ],
+    sizes: [
+      {
+        label: "100ml",
+        variantId: "s-100",
+        inStock: true,
+        description: "Daily use",
+      },
+      {
+        label: "250ml",
+        variantId: "s-250",
+        inStock: true,
+        description: "Extended care",
+      },
+    ],
+    tag: "Sale",
     rating: 4.9,
     reviewCount: 203,
+    stock: 35,
+    inStock: true,
+    isFeatured: true,
+    isNew: false,
+    isBestSale: true,
   },
+
   {
+    id: "var_004",
     productId: "prod_004",
-    name: "Midnight Repair Oil",
-    price: 395,
-    imageUrl: "/images/products/midnight-repair-oil.jpg",
-    tag: "Limited Edition",
     slug: "midnight-repair-oil",
-    description: "A luxurious overnight facial oil with squalane, sea buckthorn, and bakuchiol.",
-    isNew: true,
-    onSale: false,
+    name: "Midnight Repair Oil",
+    brand: "D'valor",
+    price: 395,
+    imageUrl:
+      "https://images.unsplash.com/photo-1617897903246-719242758050?w=600&auto=format&fit=crop",
+    hoverImageUrl:
+      "https://images.unsplash.com/photo-1601049676869-702ea24cfd58?w=600&auto=format&fit=crop",
+    images: [
+      {
+        src: "https://images.unsplash.com/photo-1617897903246-719242758050?w=600&auto=format&fit=crop",
+        alt: "Midnight Repair Oil",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1601049676869-702ea24cfd58?w=600&auto=format&fit=crop",
+        alt: "Midnight Repair Oil bottle",
+      },
+    ],
+    description:
+      "A nighttime facial oil enriched with botanical extracts to repair skin texture and restore overnight hydration.",
+    colors: [
+      {
+        label: "Night Gold",
+        hex: "#8a6b4f",
+        variantId: "v-night",
+        inStock: true,
+      },
+    ],
+    sizes: [
+      {
+        label: "30ml",
+        variantId: "s-30",
+        inStock: true,
+        description: "Night repair size",
+      },
+    ],
+    tag: "Limited",
     rating: 4.7,
     reviewCount: 91,
+    stock: 5,
+    inStock: true,
+    isFeatured: true,
   },
+
   {
+    id: "var_005",
     productId: "prod_005",
-    name: "Petal Soft Eye Cream",
-    price: 240,
-    imageUrl: "/images/products/petal-soft-eye-cream.jpg",
-    tag: "Skincare",
     slug: "petal-soft-eye-cream",
-    description: "Peptide-rich eye cream that targets dark circles, puffiness, and fine lines.",
-    isNew: false,
-    onSale: false,
+    name: "Petal Soft Eye Cream",
+    brand: "D'valor",
+    price: 240,
+    imageUrl:
+      "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=600&auto=format&fit=crop",
+    hoverImageUrl:
+      "https://images.unsplash.com/photo-1522338242992-e1a54906a8da?w=600&auto=format&fit=crop",
+    images: [
+      {
+        src: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=600&auto=format&fit=crop",
+        alt: "Petal Soft Eye Cream",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1522338242992-e1a54906a8da?w=600&auto=format&fit=crop",
+        alt: "Petal Soft Eye Cream texture",
+      },
+    ],
+    description:
+      "A lightweight eye cream that helps reduce puffiness, dark circles, and visible signs of fatigue.",
+    colors: [
+      {
+        label: "Soft Petal",
+        hex: "#f3d8dc",
+        variantId: "v-soft",
+        inStock: true,
+      },
+    ],
+    sizes: [
+      {
+        label: "20ml",
+        variantId: "s-20",
+        inStock: true,
+        description: "Compact care",
+      },
+    ],
+    tag: "Popular",
     rating: 4.5,
     reviewCount: 77,
-  },
-  {
-    productId: "prod_006",
-    name: "Gold Leaf Exfoliating Mask",
-    price: 310,
-    originalPrice: 360,
-    imageUrl: "/images/products/gold-leaf-mask.jpg",
-    tag: "Sale",
-    slug: "gold-leaf-exfoliating-mask",
-    description: "A weekly kaolin clay mask with real gold flakes and turmeric for deep radiance.",
-    isNew: false,
-    onSale: true,
-    rating: 4.4,
-    reviewCount: 115,
-  },
-  {
-    productId: "prod_007",
-    name: "Neroli Hydra Toner",
-    price: 155,
-    imageUrl: "/images/products/neroli-hydra-toner.jpg",
-    tag: "Toner",
-    slug: "neroli-hydra-toner",
-    description: "Alcohol-free neroli and hyaluronic acid toner that plumps and preps skin.",
-    isNew: true,
-    onSale: false,
-    rating: 4.6,
-    reviewCount: 44,
-  },
-  {
-    productId: "prod_008",
-    name: "Silk Lip Treatment",
-    price: 120,
-    imageUrl: "/images/products/silk-lip-treatment.jpg",
-    tag: "Lip Care",
-    slug: "silk-lip-treatment",
-    description: "A honey and jojoba overnight lip mask for visibly plumper, softer lips by morning.",
-    isNew: false,
-    onSale: false,
-    rating: 4.8,
-    reviewCount: 189,
+    stock: 18,
+    inStock: true,
+    isFeatured: true,
   },
 ];
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+export interface QuickViewProduct {
+  id: string;
+  productId: string;
+  slug: string;
+  name: string;
+  brand?: string;
+  price: number;
+  comparePrice?: number;
+  images: { src: string; alt: string }[];
+  description?: string;
+  rating?: number;
+  reviewCount?: number;
+  colors?: ColorOption[];
+  sizes?: SizeOption[];
+  stock?: number;
+  inStock?: boolean;
+}
+
+export async function getFeaturedProducts(): Promise<FeaturedProduct[]> {
+  return FAKE_FEATURED_PRODUCTS.filter(
+    (product) => product.isFeatured || product.tag === "Bestseller",
+  );
+}
+
+export async function fetchProductBySlug(
+  slug: string,
+): Promise<QuickViewProduct | null> {
+  const product = FAKE_FEATURED_PRODUCTS.find((item) => item.slug === slug);
+
+  if (!product) return null;
+
+  return {
+    id: product.id,
+    productId: product.productId,
+    slug: product.slug,
+    name: product.name,
+    brand: product.brand,
+    price: product.price,
+    comparePrice: product.comparePrice,
+
+    images: product.images?.length
+      ? product.images
+      : [
+          {
+            src: product.imageUrl,
+            alt: product.name,
+          },
+        ],
+
+    description:
+      product.description ??
+      `${product.name} crafted for radiant and healthy skin.`,
+
+    rating: product.rating,
+    reviewCount: product.reviewCount,
+
+    colors: product.colors ?? [],
+    sizes: product.sizes ?? [],
+
+    stock: product.stock,
+    inStock: product.inStock ?? (product.stock ?? 0) > 0,
+  };
+}

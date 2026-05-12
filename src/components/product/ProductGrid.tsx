@@ -98,7 +98,7 @@ export default function ProductGrid({
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-xs font-body text-primary/40 tracking-wide"
+              className="text-xs  text-primary/60 tracking-wide"
             >
               <span className="text-primary font-medium">{products?.length ?? 0}</span>{" "}
               products
@@ -162,8 +162,8 @@ export default function ProductGrid({
           <div className="w-12 h-12 border border-primary/15 flex items-center justify-center">
             <HugeiconsIcon icon={LayoutGridIcon} size={20} color="currentColor" strokeWidth={1} className="text-primary/30" />
           </div>
-          <p className="font-heading text-xl text-primary/40">No products found</p>
-          <p className="text-xs text-primary/30 font-body tracking-wide">Try adjusting your filters</p>
+          <p className="font-heading text-xl text-primary/60">No products found</p>
+          <p className="text-xs text-primary/30  tracking-wide">Try adjusting your filters</p>
         </motion.div>
       )}
 

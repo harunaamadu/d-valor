@@ -61,7 +61,7 @@ function StarRating({ rating, count }: { rating: number; count?: number }) {
             strokeWidth={i < Math.floor(rating) ? 0 : 1.5}
             className={
               i < Math.floor(rating)
-                ? "text-accent fill-accent"
+                ? "text-accent fill-amber-300"
                 : "text-primary/20"
             }
             color="currentColor"
@@ -69,7 +69,7 @@ function StarRating({ rating, count }: { rating: number; count?: number }) {
         ))}
       </div>
       {count !== undefined && (
-        <span className="text-[10px] text-primary/40 tracking-wide">
+        <span className="text-[10px] text-primary/60 tracking-wide">
           ({count})
         </span>
       )}
@@ -176,7 +176,7 @@ export default function ProductCard({
         {tag && (
           <span
             className={cn(
-              "absolute top-3 left-3 z-20 text-[9px] font-body tracking-[0.18em] uppercase px-2.5 py-1",
+              "absolute top-3 left-3 z-20 text-[9px]  tracking-[0.18em] uppercase px-2.5 py-1",
               TAG_STYLES[tag] ?? "bg-primary/80 text-primary-foreground"
             )}
           >
@@ -186,7 +186,7 @@ export default function ProductCard({
 
         {/* Discount badge */}
         {discountPct && !tag && (
-          <span className="absolute top-3 left-3 z-20 text-[9px] font-body tracking-[0.18em] uppercase px-2.5 py-1 bg-destructive/90 text-white">
+          <span className="absolute top-3 left-3 z-20 text-[9px]  tracking-[0.18em] uppercase px-2.5 py-1 bg-destructive/90 text-white">
             -{discountPct}%
           </span>
         )}
@@ -204,7 +204,7 @@ export default function ProductCard({
               {/* Add to bag */}
               <button
                 onClick={handleAddToCart}
-                className="flex-1 flex items-center justify-center gap-2 py-3 bg-primary text-primary-foreground text-[10px] tracking-[0.2em] uppercase font-body hover:bg-primary/90 transition-colors duration-200"
+                className="flex-1 flex items-center justify-center gap-2 py-3 bg-primary text-primary-foreground text-[10px] tracking-[0.2em] uppercase  hover:bg-primary/90 transition-colors duration-200"
                 aria-label={`Add ${name} to bag`}
               >
                 <HugeiconsIcon icon={ShoppingBag01Icon} size={13} color="currentColor" strokeWidth={1.5} />
@@ -261,11 +261,11 @@ export default function ProductCard({
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-sm font-body text-primary font-medium">
+          <span className="text-sm  text-primary font-medium">
             GH₵ {price.toLocaleString("en-GH", { minimumFractionDigits: 2 })}
           </span>
           {comparePrice && comparePrice > price && (
-            <span className="text-xs font-body text-primary/35 line-through">
+            <span className="text-xs  text-primary/35 line-through">
               GH₵ {comparePrice.toLocaleString("en-GH", { minimumFractionDigits: 2 })}
             </span>
           )}

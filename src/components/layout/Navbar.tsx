@@ -19,6 +19,8 @@ import Logo from "../ui/custom/logo";
 import DesktopNav from "../shared/DesktopNav";
 import MobileNav from "../shared/MobileNav";
 import AnnouncementBar from "../shared/AnnouncementBar";
+import { useCartStore } from "@/store/cart.store";
+import { ClientOnly } from "../common/ClientOnly";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -26,9 +28,12 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [cartCount] = useState(2);
+  // const [cartCount] = useState(2);
   const navRef = useRef<HTMLElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const { toggleCart, getItemCount } = useCartStore();
+  const cartCount = getItemCount();
 
   // GSAP scroll detection
   useEffect(() => {
@@ -157,11 +162,14 @@ export default function Navbar() {
                   <span className="hidden sm:block text-xs text-primary/80 font-light tracking-wider">
                     Cart
                   </span>
-                  {cartCount > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 min-w-4.5 h-4.5 flex items-center justify-center bg-primary/75 text-primary-foreground text-[10px] font-semibold px-1 leading-none">
-                      {cartCount}
-                    </span>
-                  )}
+                  
+                  <ClientOnly>
+                    {cartCount > 0 && (
+                      <span className="absolute -top-1.5 -right-1.5 min-w-4.5 h-4.5 flex items-center justify-center bg-primary/75 text-primary-foreground text-[10px] font-semibold px-1 leading-none">
+                        {cartCount > 9 ? "9+" : cartCount}
+                      </span>
+                    )}
+                  </ClientOnly>
                 </Link>
               </div>
             </div>
@@ -185,7 +193,7 @@ export default function Navbar() {
                 className="overflow-hidden border-t border-primary/15"
               >
                 <div className="max-w-2xl mx-auto px-4 py-3">
-                  <div className="flex items-center gap-3 px-4 py-2.5 bg-primary/5 border border-primary/15 focus-within:border-primary/40 transition-colors">
+                  <div className="flex items-center gap-3 px-4 py-2.5 bg-primary/5 border border-primary/15 focus-within:border-primary/60 transition-colors">
                     <HugeiconsIcon
                       icon={Search01Icon}
                       size={15}

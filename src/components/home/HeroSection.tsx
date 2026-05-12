@@ -24,8 +24,8 @@ interface HeroSlide {
   secondaryCta?: { label: string; href: string };
   tag: string; // floating label e.g. "New Arrival"
   bg: string; // background image path
-  product: string; // product image path (right-aligned)
-  productAlt: string;
+  product?: string; // product image path (right-aligned)
+  productAlt?: string;
   accentColor: string; // per-slide gold tint variation
 }
 
@@ -435,11 +435,11 @@ export default function HeroSection() {
                 {/* ── Right: Product Image ── */}
                 <div className="hidden lg:block relative h-full">
                   <AnimatePresence mode="wait">
-                    {current === s.id - 1 && (
+                    {current === s.id - 1 && s.product && (
                       <SlideProductImage
                         key={`product-${s.id}`}
                         src={s.product}
-                        alt={s.productAlt}
+                        alt={s.productAlt ?? ""}
                       />
                     )}
                   </AnimatePresence>
@@ -449,11 +449,11 @@ export default function HeroSection() {
               {/* Mobile product image (bottom peek) */}
               <div className="absolute bottom-0 right-0 w-48 h-64 z-10 lg:hidden">
                 <AnimatePresence mode="wait">
-                  {current === s.id - 1 && (
+                  {current === s.id - 1 && s.product && (
                     <SlideProductImage
                       key={`product-mobile-${s.id}`}
                       src={s.product}
-                      alt={s.productAlt}
+                      alt={s.productAlt ?? ""}
                     />
                   )}
                 </AnimatePresence>

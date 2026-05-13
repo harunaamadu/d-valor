@@ -17,14 +17,19 @@ export interface ColorOption {
   label: string;
   hex: string;
   variantId: string;
+  /** Per-colour stock count; undefined means unknown/unlimited */
+  stock?: number;
   inStock?: boolean;
+  imageUrl?: string;
 }
 
 export interface SizeOption {
   label: string;
   variantId: string;
-  inStock?: boolean;
+  inStock: boolean;
   description?: string;
+  price?: number;
+  comparePrice?: number;
 }
 
 interface ProductVariantSelectorProps {
@@ -48,19 +53,25 @@ function ColorSwatch({
   selected: boolean;
   onSelect: () => void;
 }) {
+  /** Derive effective inStock: explicit flag wins; otherwise fall back to stock > 0 */
+  const effectivelyInStock =
+    option.inStock !== undefined
+      ? option.inStock
+      : option.stock === undefined || option.stock > 0;
+
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <button
           onClick={onSelect}
-          disabled={option.inStock === false}
+          disabled={!effectivelyInStock}
           aria-label={`Color: ${option.label}`}
           aria-pressed={selected}
           className={cn(
             "relative w-7 h-7 transition-all duration-200",
             "border-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50",
             selected ? "border-primary" : "border-transparent hover:border-primary/30",
-            option.inStock === false && "opacity-40 cursor-not-allowed"
+            !effectivelyInStock && "opacity-40 cursor-not-allowed"
           )}
           style={{ backgroundColor: option.hex }}
         >
@@ -75,13 +86,16 @@ function ColorSwatch({
                 size={11}
                 strokeWidth={2.5}
                 color={
-                  isLightColor(option.hex) ? "rgba(26,17,8,0.8)" : "rgba(255,255,255,0.9)"
+                  isLightColor(option.hex)
+                    ? "rgba(26,17,8,0.8)"
+                    : "rgba(255,255,255,0.9)"
                 }
               />
             </motion.span>
           )}
-          {/* Out of stock line */}
-          {option.inStock === false && (
+
+          {/* Out of stock diagonal line */}
+          {!effectivelyInStock && (
             <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <span className="w-full h-px bg-primary/60 rotate-45" />
             </span>
@@ -89,7 +103,14 @@ function ColorSwatch({
         </button>
       </TooltipTrigger>
       <TooltipContent>
-        <span>{option.label}{option.inStock === false ? " — Out of stock" : ""}</span>
+        <span>
+          {option.label}
+          {!effectivelyInStock
+            ? " — Out of stock"
+            : option.stock !== undefined && option.stock <= 5
+              ? ` — Only ${option.stock} left`
+              : ""}
+        </span>
       </TooltipContent>
     </Tooltip>
   );
@@ -116,16 +137,16 @@ function SizeButton({
   const btn = (
     <button
       onClick={onSelect}
-      disabled={option.inStock === false}
+      disabled={!option.inStock}
       aria-label={`Size: ${option.label}`}
       aria-pressed={selected}
       className={cn(
-        "relative min-w-12 h-9 px-3 text-xs  tracking-widest uppercase",
+        "relative min-w-12 h-9 px-3 text-xs tracking-widest uppercase",
         "border transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50",
         selected
           ? "border-primary bg-primary text-primary-foreground"
           : "border-primary/20 text-primary/70 hover:border-primary/60 hover:text-primary",
-        option.inStock === false && "opacity-35 cursor-not-allowed line-through"
+        !option.inStock && "opacity-35 cursor-not-allowed line-through"
       )}
     >
       {option.label}
@@ -164,7 +185,7 @@ export default function ProductVariantSelector({
       {colors && colors.length > 0 && (
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <p className="text-xs tracking-[0.2em] uppercase  text-primary/50">
+            <p className="text-xs tracking-[0.2em] uppercase text-primary/50">
               Shade
             </p>
             {activeColor && (
@@ -173,9 +194,14 @@ export default function ProductVariantSelector({
                 initial={{ opacity: 0, x: 8 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.2 }}
-                className="text-xs  text-primary"
+                className="text-xs text-primary"
               >
                 {activeColor.label}
+                {activeColor.stock !== undefined && activeColor.stock <= 5 && activeColor.stock > 0 && (
+                  <span className="ml-2 text-[10px] text-destructive/70">
+                    ({activeColor.stock} left)
+                  </span>
+                )}
               </motion.p>
             )}
           </div>
@@ -186,7 +212,9 @@ export default function ProductVariantSelector({
                 key={color.variantId}
                 option={color}
                 selected={selectedColor === color.variantId}
-                onSelect={() => onColorChange?.(color.variantId, color.hex, color.label)}
+                onSelect={() =>
+                  onColorChange?.(color.variantId, color.hex, color.label)
+                }
               />
             ))}
           </div>
@@ -197,11 +225,16 @@ export default function ProductVariantSelector({
       {sizes && sizes.length > 0 && (
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <p className="text-xs tracking-[0.2em] uppercase  text-primary/50">
+            <p className="text-xs tracking-[0.2em] uppercase text-primary/50">
               Size
             </p>
-            <button className="flex items-center gap-1 text-[10px]  tracking-[0.15em] uppercase text-accent hover:text-primary transition-colors duration-200">
-              <HugeiconsIcon icon={InformationCircleIcon} size={11} color="currentColor" strokeWidth={1.5} />
+            <button className="flex items-center gap-1 text-[10px] tracking-[0.15em] uppercase text-accent hover:text-primary transition-colors duration-200">
+              <HugeiconsIcon
+                icon={InformationCircleIcon}
+                size={11}
+                color="currentColor"
+                strokeWidth={1.5}
+              />
               Size Guide
             </button>
           </div>
@@ -218,8 +251,8 @@ export default function ProductVariantSelector({
           </div>
 
           {/* Sold out notice */}
-          {sizes.every((s) => s.inStock === false) && (
-            <p className="text-xs  text-destructive/70 tracking-wide mt-1">
+          {sizes.every((s) => !s.inStock) && (
+            <p className="text-xs text-destructive/70 tracking-wide mt-1">
               All sizes currently sold out. Join the waitlist below.
             </p>
           )}

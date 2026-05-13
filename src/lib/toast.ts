@@ -16,6 +16,13 @@ export const showToast = {
     });
   },
 
+  maxStockReached: (name: string) => {
+    toast.error("Maximum stock reached", {
+      description: `${name} is already at the highest available quantity in your bag`,
+      duration: 3000,
+    });
+  },
+
   cartCleared: () => {
     toast("Bag cleared", {
       description: "All items have been removed",

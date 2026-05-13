@@ -46,7 +46,7 @@ export default function CartItem({
         href={`/product/${item.slug}`}
         className={cn(
           "relative block overflow-hidden bg-primary/5",
-          compact ? "aspect-square" : "aspect-[4/5] sm:aspect-square",
+          compact ? "aspect-square" : "aspect-4/5 sm:aspect-square",
         )}
       >
         <Image
@@ -63,7 +63,7 @@ export default function CartItem({
           <div className="min-w-0 space-y-1">
             <Link
               href={`/product/${item.slug}`}
-              className="font-heading text-base text-primary transition-colors hover:text-accent"
+              className="font-heading text-base text-primary/90 transition-colors hover:text-primary-hover"
             >
               {item.name}
             </Link>

@@ -1,105 +1,211 @@
+// queries/product.ts
+
 import { groq } from 'next-sanity'
+
+// ─────────────────────────────────────────────
+// Shared Image Projection
+// ─────────────────────────────────────────────
 
 const productImageProjection = groq`
   {
     alt,
-    asset->{
-      _id,
-      url,
-      metadata {
-        lqip,
-        dimensions {
-          width,
-          height,
-          aspectRatio
-        }
+    isPrimary,
+    "src": asset->url,
+    "blurDataURL": asset->metadata.lqip,
+    "metadata": asset->metadata{
+      dimensions {
+        width,
+        height,
+        aspectRatio
       }
     }
   }
 `
 
-const categoryProjection = groq`
-  "category": category->{
-    _id,
-    title,
-    "slug": slug.current
-  }
-`
+// ─────────────────────────────────────────────
+// Color Variant Projection
+// ─────────────────────────────────────────────
 
-const collectionReferenceProjection = groq`
-  collections[]->{
-    _id,
-    title,
-    "slug": slug.current
-  }
-`
-
-export const productCardProjection = groq`
+const colorProjection = groq`
   {
-    _id,
-    _createdAt,
-    _updatedAt,
-    title,
-    "slug": slug.current,
+    label,
+    hex,
+    variantId,
+    stock,
+    inStock,
+    "imageUrl": imageUrl.asset->url
+  }
+`
+
+// ─────────────────────────────────────────────
+// Size Variant Projection
+// ─────────────────────────────────────────────
+
+const sizeProjection = groq`
+  {
+    label,
+    variantId,
     description,
     price,
-    compareAtPrice,
-    inventory,
-    featured,
-    status,
-    "isInStock": coalesce(inventory, 0) > 0 && status != "out-of-stock",
-    "primaryImage": images[0]${productImageProjection},
-    "images": images[]${productImageProjection},
-    ${categoryProjection},
-    "collections": ${collectionReferenceProjection},
-    tags
+    comparePrice,
+    inStock
   }
 `
 
-export const allProductsQuery = groq`
-  *[_type == "product"] | order(featured desc, _createdAt desc) ${productCardProjection}
+// ─────────────────────────────────────────────
+// Product Card Projection
+// ─────────────────────────────────────────────
+
+export const productCardProjection = groq`
+{
+  "_id": _id,
+  "_createdAt": _createdAt,
+  "_updatedAt": _updatedAt,
+
+  // ─── Basic Info ───────────────────────────
+
+  name,
+  brand,
+  subtitle,
+  description,
+
+  "slug": slug.current,
+
+  category,
+  collections,
+
+  // ─── Pricing ──────────────────────────────
+
+  price,
+  comparePrice,
+  currency,
+
+  "discountPercentage": select(
+    defined(comparePrice) && comparePrice > price =>
+      round(((comparePrice - price) / comparePrice) * 100),
+    null
+  ),
+
+  // ─── Media ────────────────────────────────
+
+  "imageUrl": imageUrl.asset->url,
+
+  "hoverImageUrl": hoverImageUrl.asset->url,
+
+  "images": images[]${productImageProjection},
+
+  videoUrl,
+
+  // ─── Variants ─────────────────────────────
+
+  "colors": colors[]${colorProjection},
+
+  "sizes": sizes[]${sizeProjection},
+
+  // ─── Labels ───────────────────────────────
+
+  tag,
+
+  isFeatured,
+  isNew,
+  isBestSale,
+  isTrending,
+  isLimited,
+  isExclusive,
+
+  // ─── Ratings ──────────────────────────────
+
+  rating,
+  reviewCount,
+
+  // ─── Inventory ────────────────────────────
+
+  stock,
+
+  "inStock": coalesce(inStock, false),
+
+  lowStockThreshold,
+  soldCount,
+
+  // ─── Shipping ─────────────────────────────
+
+  freeShipping,
+  estimatedDelivery,
+
+  // ─── SEO ──────────────────────────────────
+
+  seoTitle,
+  seoDescription,
+  seoKeywords,
+
+  // ─── Dates ────────────────────────────────
+
+  publishedAt
+}
 `
 
-export const publishedProductsQuery = groq`
-  *[_type == "product" && status == "published"] | order(featured desc, _createdAt desc) ${productCardProjection}
+// ─────────────────────────────────────────────
+// Queries
+// ─────────────────────────────────────────────
+
+export const allProductsQuery = groq`
+  *[_type == "product"]
+  | order(isFeatured desc, publishedAt desc, _createdAt desc)
+  ${productCardProjection}
 `
 
 export const featuredProductsQuery = groq`
-  *[_type == "product" && featured == true && status == "published"] | order(_createdAt desc) ${productCardProjection}
+  *[
+    _type == "product" &&
+    isFeatured == true
+  ]
+  | order(publishedAt desc, _createdAt desc)
+  ${productCardProjection}
 `
 
 export const productBySlugQuery = groq`
-  *[_type == "product" && slug.current == $slug][0] ${productCardProjection}
+  *[
+    _type == "product" &&
+    slug.current == $slug
+  ][0]
+  ${productCardProjection}
 `
 
 export const relatedProductsQuery = groq`
   *[
     _type == "product" &&
-    status == "published" &&
     slug.current != $slug &&
     (
-      category._ref == $categoryId ||
-      count(collections[@._ref in $collectionIds]) > 0
+      category == $category ||
+      count(collections[@ in $collections]) > 0
     )
-  ] | order(featured desc, _createdAt desc) [0...$limit] ${productCardProjection}
+  ]
+  | order(isFeatured desc, publishedAt desc, _createdAt desc)
+  [0...$limit]
+  ${productCardProjection}
 `
 
 export const productsByCategoryQuery = groq`
   *[
     _type == "product" &&
-    status == "published" &&
-    category->slug.current == $categorySlug
-  ] | order(featured desc, _createdAt desc) ${productCardProjection}
+    category == $category
+  ]
+  | order(isFeatured desc, publishedAt desc, _createdAt desc)
+  ${productCardProjection}
 `
 
 export const productsByCollectionQuery = groq`
   *[
     _type == "product" &&
-    status == "published" &&
-    $collectionSlug in collections[]->slug.current
-  ] | order(featured desc, _createdAt desc) ${productCardProjection}
+    $collection in collections[]
+  ]
+  | order(isFeatured desc, publishedAt desc, _createdAt desc)
+  ${productCardProjection}
 `
 
 export const productSlugsQuery = groq`
-  *[_type == "product" && defined(slug.current)][].slug.current
+  *[
+    _type == "product" &&
+    defined(slug.current)
+  ][].slug.current
 `

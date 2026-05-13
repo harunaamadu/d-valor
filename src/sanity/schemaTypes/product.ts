@@ -1,3 +1,5 @@
+// schemas/product.ts
+
 import { defineArrayMember, defineField, defineType } from 'sanity'
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {
@@ -10,39 +12,92 @@ export default defineType({
   name: 'product',
   title: 'Product',
   type: 'document',
+
   fields: [
+    // ─────────────────────────────────────────────
+    // Basic Info
+    // ─────────────────────────────────────────────
+
     defineField({
-      name: 'title',
-      title: 'Title',
+      name: 'name',
+      title: 'Product Name',
       type: 'string',
       validation: (rule) => rule.required().min(2).max(120),
     }),
+
+    defineField({
+      name: 'brand',
+      title: 'Brand',
+      type: 'string',
+    }),
+
+    defineField({
+      name: 'subtitle',
+      title: 'Subtitle',
+      type: 'string',
+    }),
+
     defineField({
       name: 'slug',
       title: 'Slug',
       type: 'slug',
       options: {
-        source: 'title',
+        source: 'name',
         maxLength: 96,
       },
       validation: (rule) => rule.required(),
     }),
+
     defineField({
       name: 'description',
       title: 'Description',
       type: 'text',
       rows: 5,
-      validation: (rule) => rule.max(1200),
+      validation: (rule) => rule.max(2000),
     }),
+
+    // ─────────────────────────────────────────────
+    // Category / Collections
+    // ─────────────────────────────────────────────
+
+    defineField({
+      name: 'category',
+      title: 'Category',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Skincare', value: 'Skincare' },
+          { title: 'Body Care', value: 'Body Care' },
+          { title: 'Hair Care', value: 'Hair Care' },
+          { title: 'Lip Care', value: 'Lip Care' },
+          { title: 'Perfumes', value: 'Perfumes' },
+        ],
+      },
+    }),
+
+    defineField({
+      name: 'collections',
+      title: 'Collections',
+      type: 'array',
+      of: [defineArrayMember({ type: 'string' })],
+      validation: (rule) => rule.unique(),
+    }),
+
+    // ─────────────────────────────────────────────
+    // Pricing
+    // ─────────────────────────────────────────────
+
     defineField({
       name: 'price',
-      title: 'Price',
+      title: 'Base Price',
+      description: 'Default product price (usually first size price)',
       type: 'number',
       validation: (rule) => rule.required().positive().precision(2),
     }),
+
     defineField({
-      name: 'compareAtPrice',
-      title: 'Compare-at Price',
+      name: 'comparePrice',
+      title: 'Compare Price',
       type: 'number',
       validation: (rule) =>
         rule.min(0).precision(2).custom((value, context) => {
@@ -52,12 +107,68 @@ export default defineType({
             return true
           }
 
-          return value >= price || 'Compare-at price should be greater than or equal to the price.'
+          return (
+            value >= price ||
+            'Compare price must be greater than or equal to price.'
+          )
         }),
     }),
+
+    defineField({
+      name: 'currency',
+      title: 'Currency',
+      type: 'string',
+      initialValue: 'GHS',
+      options: {
+        list: [
+          { title: 'GHS', value: 'GHS' },
+          { title: 'USD', value: 'USD' },
+          { title: 'EUR', value: 'EUR' },
+        ],
+      },
+    }),
+
+    // ─────────────────────────────────────────────
+    // Media
+    // ─────────────────────────────────────────────
+
+    defineField({
+      name: 'imageUrl',
+      title: 'Main Image',
+      type: 'image',
+      options: {
+        hotspot: true,
+      },
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'Alt Text',
+          type: 'string',
+          validation: (rule) => rule.required(),
+        }),
+      ],
+      validation: (rule) => rule.required(),
+    }),
+
+    defineField({
+      name: 'hoverImageUrl',
+      title: 'Hover Image',
+      type: 'image',
+      options: {
+        hotspot: true,
+      },
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'Alt Text',
+          type: 'string',
+        }),
+      ],
+    }),
+
     defineField({
       name: 'images',
-      title: 'Images',
+      title: 'Gallery Images',
       type: 'array',
       of: [
         defineArrayMember({
@@ -70,92 +181,370 @@ export default defineType({
               name: 'alt',
               title: 'Alt Text',
               type: 'string',
-              validation: (rule) => rule.required().max(160),
+              validation: (rule) => rule.required(),
+            }),
+
+            defineField({
+              name: 'isPrimary',
+              title: 'Primary Image',
+              type: 'boolean',
+              initialValue: false,
             }),
           ],
         }),
       ],
       validation: (rule) => rule.min(1),
     }),
+
     defineField({
-      name: 'category',
-      title: 'Category',
-      type: 'reference',
-      to: [{ type: 'category' }],
+      name: 'videoUrl',
+      title: 'Video URL',
+      type: 'url',
     }),
+
+    // ─────────────────────────────────────────────
+    // Colors
+    // ─────────────────────────────────────────────
+
     defineField({
-      name: 'collections',
-      title: 'Collections',
+      name: 'colors',
+      title: 'Color Variants',
       type: 'array',
       of: [
         defineArrayMember({
-          type: 'reference',
-          to: [{ type: 'collection' }],
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'label',
+              title: 'Label',
+              type: 'string',
+              validation: (rule) => rule.required(),
+            }),
+
+            defineField({
+              name: 'hex',
+              title: 'Hex Color',
+              type: 'string',
+              validation: (rule) => rule.required(),
+            }),
+
+            defineField({
+              name: 'variantId',
+              title: 'Variant ID',
+              type: 'string',
+              validation: (rule) => rule.required(),
+            }),
+
+            defineField({
+              name: 'stock',
+              title: 'Stock',
+              type: 'number',
+              initialValue: 0,
+              validation: (rule) => rule.required().integer().min(0),
+            }),
+
+            defineField({
+              name: 'inStock',
+              title: 'In Stock',
+              type: 'boolean',
+              initialValue: true,
+            }),
+
+            defineField({
+              name: 'imageUrl',
+              title: 'Variant Image',
+              type: 'image',
+              options: {
+                hotspot: true,
+              },
+            }),
+          ],
+
+          preview: {
+            select: {
+              title: 'label',
+              subtitle: 'hex',
+              media: 'imageUrl',
+            },
+          },
         }),
       ],
-      validation: (rule) => rule.unique(),
     }),
+
+    // ─────────────────────────────────────────────
+    // Sizes
+    // ─────────────────────────────────────────────
+
     defineField({
-      name: 'tags',
-      title: 'Tags',
+      name: 'sizes',
+      title: 'Size Variants',
+      type: 'array',
+      of: [
+        defineArrayMember({
+          type: 'object',
+
+          fields: [
+            defineField({
+              name: 'label',
+              title: 'Size Label',
+              type: 'string',
+              validation: (rule) => rule.required(),
+            }),
+
+            defineField({
+              name: 'variantId',
+              title: 'Variant ID',
+              type: 'string',
+              validation: (rule) => rule.required(),
+            }),
+
+            defineField({
+              name: 'description',
+              title: 'Description',
+              type: 'string',
+            }),
+
+            defineField({
+              name: 'price',
+              title: 'Price',
+              type: 'number',
+              validation: (rule) =>
+                rule.required().positive().precision(2),
+            }),
+
+            defineField({
+              name: 'comparePrice',
+              title: 'Compare Price',
+              type: 'number',
+              validation: (rule) =>
+                rule.min(0).precision(2),
+            }),
+
+            defineField({
+              name: 'inStock',
+              title: 'In Stock',
+              type: 'boolean',
+              initialValue: true,
+            }),
+          ],
+
+          preview: {
+            select: {
+              title: 'label',
+              price: 'price',
+            },
+
+            prepare({ title, price }) {
+              return {
+                title,
+                subtitle:
+                  typeof price === 'number'
+                    ? currencyFormatter.format(price)
+                    : 'No price',
+              }
+            },
+          },
+        }),
+      ],
+    }),
+
+    // ─────────────────────────────────────────────
+    // Product Labels
+    // ─────────────────────────────────────────────
+
+    defineField({
+      name: 'tag',
+      title: 'Tag',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'New', value: 'New' },
+          { title: 'Sale', value: 'Sale' },
+          { title: 'Bestseller', value: 'Bestseller' },
+          { title: 'Limited', value: 'Limited' },
+          { title: 'Popular', value: 'Popular' },
+          { title: 'Trending', value: 'Trending' },
+          { title: 'Exclusive', value: 'Exclusive' },
+        ],
+      },
+    }),
+
+    defineField({
+      name: 'isFeatured',
+      title: 'Featured',
+      type: 'boolean',
+      initialValue: false,
+    }),
+
+    defineField({
+      name: 'isNew',
+      title: 'New Product',
+      type: 'boolean',
+      initialValue: false,
+    }),
+
+    defineField({
+      name: 'isBestSale',
+      title: 'Best Sale',
+      type: 'boolean',
+      initialValue: false,
+    }),
+
+    defineField({
+      name: 'isTrending',
+      title: 'Trending',
+      type: 'boolean',
+      initialValue: false,
+    }),
+
+    defineField({
+      name: 'isLimited',
+      title: 'Limited',
+      type: 'boolean',
+      initialValue: false,
+    }),
+
+    defineField({
+      name: 'isExclusive',
+      title: 'Exclusive',
+      type: 'boolean',
+      initialValue: false,
+    }),
+
+    // ─────────────────────────────────────────────
+    // Ratings
+    // ─────────────────────────────────────────────
+
+    defineField({
+      name: 'rating',
+      title: 'Rating',
+      type: 'number',
+      validation: (rule) => rule.min(0).max(5),
+    }),
+
+    defineField({
+      name: 'reviewCount',
+      title: 'Review Count',
+      type: 'number',
+      initialValue: 0,
+      validation: (rule) => rule.integer().min(0),
+    }),
+
+    // ─────────────────────────────────────────────
+    // Inventory
+    // ─────────────────────────────────────────────
+
+    defineField({
+      name: 'stock',
+      title: 'Total Stock',
+      description:
+        'Aggregate stock across all variants/colors',
+      type: 'number',
+      initialValue: 0,
+      validation: (rule) => rule.integer().min(0),
+    }),
+
+    defineField({
+      name: 'inStock',
+      title: 'In Stock',
+      type: 'boolean',
+      initialValue: true,
+    }),
+
+    defineField({
+      name: 'lowStockThreshold',
+      title: 'Low Stock Threshold',
+      type: 'number',
+      initialValue: 5,
+      validation: (rule) => rule.integer().min(0),
+    }),
+
+    defineField({
+      name: 'soldCount',
+      title: 'Sold Count',
+      type: 'number',
+      initialValue: 0,
+      validation: (rule) => rule.integer().min(0),
+    }),
+
+    // ─────────────────────────────────────────────
+    // Shipping
+    // ─────────────────────────────────────────────
+
+    defineField({
+      name: 'freeShipping',
+      title: 'Free Shipping',
+      type: 'boolean',
+      initialValue: false,
+    }),
+
+    defineField({
+      name: 'estimatedDelivery',
+      title: 'Estimated Delivery',
+      type: 'string',
+    }),
+
+    // ─────────────────────────────────────────────
+    // SEO
+    // ─────────────────────────────────────────────
+
+    defineField({
+      name: 'seoTitle',
+      title: 'SEO Title',
+      type: 'string',
+      validation: (rule) => rule.max(70),
+    }),
+
+    defineField({
+      name: 'seoDescription',
+      title: 'SEO Description',
+      type: 'text',
+      rows: 3,
+      validation: (rule) => rule.max(160),
+    }),
+
+    defineField({
+      name: 'seoKeywords',
+      title: 'SEO Keywords',
       type: 'array',
       of: [defineArrayMember({ type: 'string' })],
       options: {
         layout: 'tags',
       },
-      validation: (rule) => rule.unique(),
     }),
+
+    // ─────────────────────────────────────────────
+    // Dates
+    // ─────────────────────────────────────────────
+
     defineField({
-      name: 'inventory',
-      title: 'Inventory Quantity',
-      type: 'number',
-      initialValue: 0,
-      validation: (rule) => rule.required().integer().min(0),
-    }),
-    defineField({
-      name: 'featured',
-      title: 'Featured',
-      type: 'boolean',
-      initialValue: false,
-    }),
-    defineField({
-      name: 'status',
-      title: 'Status',
-      type: 'string',
-      options: {
-        list: [
-          { title: 'Draft', value: 'draft' },
-          { title: 'Published', value: 'published' },
-          { title: 'Out of Stock', value: 'out-of-stock' },
-        ],
-        layout: 'radio',
-      },
-      initialValue: 'draft',
-      validation: (rule) => rule.required(),
+      name: 'publishedAt',
+      title: 'Published At',
+      type: 'datetime',
     }),
   ],
+
   preview: {
     select: {
-      title: 'title',
-      media: 'images.0',
+      title: 'name',
+      media: 'imageUrl',
       price: 'price',
-      status: 'status',
+      tag: 'tag',
+      inStock: 'inStock',
     },
-    prepare({ title, media, price, status }) {
+
+    prepare({ title, media, price, tag, inStock }) {
       const formattedPrice =
-        typeof price === 'number' ? currencyFormatter.format(price) : 'No price'
-      const formattedStatus =
-        typeof status === 'string'
-          ? status
-              .split('-')
-              .map((part: string) => part.charAt(0).toUpperCase() + part.slice(1))
-              .join(' ')
-          : 'No status'
+        typeof price === 'number'
+          ? currencyFormatter.format(price)
+          : 'No price'
 
       return {
         title,
         media,
-        subtitle: `${formattedPrice} • ${formattedStatus}`,
+        subtitle: `${formattedPrice} • ${
+          tag ?? 'No tag'
+        } • ${inStock ? 'In Stock' : 'Out of Stock'}`,
       }
     },
   },

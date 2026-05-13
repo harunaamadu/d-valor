@@ -1,11 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { motion } from "framer-motion";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  ShoppingBag01Icon,
   FavouriteIcon,
   TruckIcon,
   StarIcon,
@@ -13,13 +12,14 @@ import {
   ArrowRight01Icon,
 } from "@hugeicons/core-free-icons";
 import { cn } from "@/lib/utils";
-import { useCartStore } from "@/store/cart.store";
 import { Reveal, LineReveal } from "@/components/animations/reveal";
 import ProductVariantSelector, {
   type ColorOption,
   type SizeOption,
 } from "./ProductVariantSelector";
 import ProductQuantityInput from "./ProductQuantityInput";
+import AddToBagButton from "./AddToBagButton";
+import { createCartItemId } from "@/lib/cart/create-cart-item-id";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -29,6 +29,7 @@ export interface ProductInfoProps {
   name: string;
   brand?: string;
   sku?: string;
+  /** Base product price — overridden by selected size price when available */
   price: number;
   comparePrice?: number;
   description?: string;
@@ -37,10 +38,9 @@ export interface ProductInfoProps {
   imageUrl: string;
   colors?: ColorOption[];
   sizes?: SizeOption[];
+  /** Aggregate stock — used as fallback when no colour is active */
   stock?: number;
-  /** If false, show out-of-stock state */
   inStock?: boolean;
-  /** Badges: "clean" | "vegan" | "cruelty-free" | string */
   badges?: string[];
   className?: string;
 }
@@ -58,11 +58,13 @@ function StarRow({ rating, count }: { rating: number; count?: number }) {
             size={12}
             strokeWidth={i < Math.floor(rating) ? 0 : 1.5}
             color="currentColor"
-            className={i < Math.floor(rating) ? "text-accent fill-amber-300" : "text-primary/20"}
+            className={
+              i < Math.floor(rating) ? "text-accent fill-amber-300" : "text-primary/20"
+            }
           />
         ))}
       </div>
-      <span className="text-xs  text-primary/50">
+      <span className="text-xs text-primary/50">
         {rating.toFixed(1)}
         {count !== undefined && (
           <a href="#reviews" className="ml-1 hover:text-primary transition-colors duration-200">
@@ -74,16 +76,16 @@ function StarRow({ rating, count }: { rating: number; count?: number }) {
   );
 }
 
-// ─── Badge pill ───────────────────────────────────────────────────────────────
+// ─── Badge styles ─────────────────────────────────────────────────────────────
 
 const BADGE_STYLES: Record<string, string> = {
-  clean: "border-emerald-500/30 text-emerald-700 dark:text-emerald-400",
-  vegan: "border-emerald-500/30 text-emerald-700 dark:text-emerald-400",
-  "cruelty-free": "border-rose-400/30 text-rose-600 dark:text-rose-400",
-  organic: "border-amber-500/30 text-amber-700 dark:text-amber-400",
+  clean:         "border-emerald-500/30 text-emerald-700 dark:text-emerald-400",
+  vegan:         "border-emerald-500/30 text-emerald-700 dark:text-emerald-400",
+  "cruelty-free":"border-rose-400/30 text-rose-600 dark:text-rose-400",
+  organic:       "border-amber-500/30 text-amber-700 dark:text-amber-400",
 };
 
-// ─── Main Component ───────────────────────────────────────────────────────────
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export default function ProductInfo({
   productId,
@@ -99,65 +101,71 @@ export default function ProductInfo({
   imageUrl,
   colors,
   sizes,
-  stock = 10,
-  inStock = true,
+  stock: aggregateStock = 10,
+  inStock: inStockProp = true,
   badges,
   className,
 }: ProductInfoProps) {
-  const { addItem } = useCartStore();
-  const [selectedColor, setSelectedColor] = React.useState<string | null>(
-    colors?.[0]?.variantId ?? null
-  );
-  const [selectedColorHex, setSelectedColorHex] = React.useState<string>(
-    colors?.[0]?.hex ?? "#000"
-  );
-  const [selectedColorLabel, setSelectedColorLabel] = React.useState<string>(
-    colors?.[0]?.label ?? ""
-  );
-  const [selectedSize, setSelectedSize] = React.useState<string | null>(
-    sizes?.[0]?.variantId ?? null
-  );
-  const [selectedSizeLabel, setSelectedSizeLabel] = React.useState<string>(
-    sizes?.[0]?.label ?? ""
-  );
-  const [quantity, setQuantity] = React.useState(1);
+  // ── Colour selection ──
+  const [selectedColor,      setSelectedColor]      = React.useState<string | null>(colors?.[0]?.variantId ?? null);
+  const [selectedColorHex,   setSelectedColorHex]   = React.useState<string>(colors?.[0]?.hex ?? "#000");
+  const [selectedColorLabel, setSelectedColorLabel] = React.useState<string>(colors?.[0]?.label ?? "");
+
+  // ── Size selection ──
+  const [selectedSize,      setSelectedSize]      = React.useState<string | null>(sizes?.[0]?.variantId ?? null);
+  const [selectedSizeLabel, setSelectedSizeLabel] = React.useState<string>(sizes?.[0]?.label ?? "");
+
+  // ── Misc ──
+  const [quantity,   setQuantity]   = React.useState(1);
   const [wishlisted, setWishlisted] = React.useState(false);
-  const [addedAnimation, setAddedAnimation] = React.useState(false);
+
+  // ── Derived data from active selections ──
+
+  const activeColorData = React.useMemo(
+    () => colors?.find((c) => c.variantId === selectedColor) ?? colors?.[0] ?? null,
+    [colors, selectedColor],
+  );
+
+  const activeSizeData = React.useMemo(
+    () => sizes?.find((s) => s.variantId === selectedSize) ?? sizes?.[0] ?? null,
+    [sizes, selectedSize],
+  );
+
+  /**
+   * Effective stock:
+   *  1. Use selected colour's stock when present.
+   *  2. Fall back to aggregate stock prop.
+   */
+  const effectiveStock: number = React.useMemo(() => {
+    if (activeColorData?.stock !== undefined) return activeColorData.stock;
+    return aggregateStock;
+  }, [activeColorData, aggregateStock]);
+
+  /**
+   * Effective inStock:
+   *  Respects both the top-level flag and colour-level availability.
+   */
+  const effectiveInStock = inStockProp && effectiveStock > 0;
+
+  // ── Price from selected size; fall back to product price ──
+  const activePrice        = activeSizeData?.price        ?? price;
+  const activeComparePrice = activeSizeData?.comparePrice ?? comparePrice;
 
   const discountPct =
-    comparePrice && comparePrice > price
-      ? Math.round(((comparePrice - price) / comparePrice) * 100)
+    activeComparePrice && activeComparePrice > activePrice
+      ? Math.round(((activeComparePrice - activePrice) / activeComparePrice) * 100)
       : null;
-
-  const handleAddToCart = () => {
-    if (!inStock) return;
-    for (let i = 0; i < quantity; i++) {
-      addItem({
-        id: selectedColor ?? productId,
-        productId,
-        slug,
-        name,
-        price,
-        image: imageUrl,
-        color: selectedColorLabel || null,
-        colorHex: selectedColorHex || null,
-        size: selectedSizeLabel || null,
-        stock,
-      });
-    }
-    setAddedAnimation(true);
-    setTimeout(() => setAddedAnimation(false), 1800);
-  };
 
   return (
     <div className={cn("flex flex-col gap-7", className)}>
+
       {/* ── Brand + badges ── */}
       <Reveal variant="slide" direction="up" delay={0.05} duration={0.55}>
         <div className="flex items-center gap-3 flex-wrap">
           {brand && (
             <Link
               href={`/brand/${brand.toLowerCase().replace(/\s+/g, "-")}`}
-              className="text-xs tracking-[0.22em] uppercase  text-accent hover:text-primary transition-colors duration-200"
+              className="text-xs tracking-[0.22em] uppercase text-accent hover:text-primary transition-colors duration-200"
             >
               {brand}
             </Link>
@@ -169,8 +177,8 @@ export default function ProductInfo({
             <span
               key={badge}
               className={cn(
-                "text-[9px] tracking-[0.18em] uppercase  border px-2 py-0.5",
-                BADGE_STYLES[badge.toLowerCase()] ?? "border-primary/20 text-primary/50"
+                "text-[9px] tracking-[0.18em] uppercase border px-2 py-0.5",
+                BADGE_STYLES[badge.toLowerCase()] ?? "border-primary/20 text-primary/50",
               )}
             >
               {badge}
@@ -196,16 +204,24 @@ export default function ProductInfo({
       {/* ── Price block ── */}
       <Reveal variant="slide" direction="up" delay={0.22} duration={0.55}>
         <div className="flex items-end gap-3">
-          <span className="font-heading text-2xl text-primary">
-            GH₵ {price.toLocaleString("en-GH", { minimumFractionDigits: 2 })}
-          </span>
-          {comparePrice && comparePrice > price && (
-            <span className=" text-sm text-primary/35 line-through pb-0.5">
-              GH₵ {comparePrice.toLocaleString("en-GH", { minimumFractionDigits: 2 })}
+          <motion.span
+            key={activePrice}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25 }}
+            className="font-heading text-2xl text-primary"
+          >
+            GH₵ {activePrice.toLocaleString("en-GH", { minimumFractionDigits: 2 })}
+          </motion.span>
+
+          {activeComparePrice && activeComparePrice > activePrice && (
+            <span className="text-sm text-primary/35 line-through pb-0.5">
+              GH₵ {activeComparePrice.toLocaleString("en-GH", { minimumFractionDigits: 2 })}
             </span>
           )}
+
           {discountPct && (
-            <span className="text-[10px] tracking-[0.15em] uppercase  text-destructive/80 bg-destructive/8 px-2 py-0.5">
+            <span className="text-[10px] tracking-[0.15em] uppercase text-destructive/80 bg-destructive/8 px-2 py-0.5">
               Save {discountPct}%
             </span>
           )}
@@ -239,19 +255,24 @@ export default function ProductInfo({
       {/* ── Quantity + actions ── */}
       <Reveal variant="slide" direction="up" delay={0.38} duration={0.55}>
         <div className="flex flex-col gap-3">
+
           {/* Stock status */}
-          {inStock ? (
+          {effectiveInStock ? (
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-              <span className="text-xs  text-primary/50 tracking-wide">
-                {stock <= 5 ? `Only ${stock} left in stock` : "In stock — ships within 2–3 days"}
+              <span className="text-xs text-primary/50 tracking-wide">
+                {effectiveStock <= 5
+                  ? `Only ${effectiveStock} left in stock`
+                  : "In stock — ships within 2–3 days"}
               </span>
             </div>
           ) : (
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-destructive/70" />
-              <span className="text-xs  text-destructive/70 tracking-wide">
-                Out of stock
+              <span className="text-xs text-destructive/70 tracking-wide">
+                {activeColorData && effectiveStock === 0
+                  ? `${activeColorData.label} is out of stock`
+                  : "Out of stock"}
               </span>
             </div>
           )}
@@ -259,48 +280,34 @@ export default function ProductInfo({
           <div className="flex items-center gap-3">
             <ProductQuantityInput
               value={quantity}
-              max={Math.min(stock, 10)}
+              max={Math.min(effectiveStock, 10)}
               onChange={setQuantity}
-              disabled={!inStock}
+              disabled={!effectiveInStock}
               size="md"
             />
 
-            {/* Add to bag */}
-            <button
-              onClick={handleAddToCart}
-              disabled={!inStock}
-              className={cn(
-                "flex-1 flex items-center justify-center gap-2.5",
-                "h-11 px-6",
-                "text-xs tracking-[0.2em] uppercase ",
-                "transition-all duration-300 relative overflow-hidden",
-                inStock
-                  ? addedAnimation
-                    ? "bg-accent text-primary"
-                    : "bg-primary text-primary-foreground hover:bg-primary/90 group"
-                  : "bg-primary/30 text-primary/60 cursor-not-allowed"
-              )}
-              aria-label={inStock ? "Add to bag" : "Out of stock"}
-            >
-              {!addedAnimation && (
-                <>
-                  <span className="absolute inset-0 bg-accent translate-x-[-101%] group-hover:translate-x-0 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]" />
-                  <span className="relative z-10 flex items-center gap-2.5">
-                    <HugeiconsIcon icon={ShoppingBag01Icon} size={14} color="currentColor" strokeWidth={1.5} />
-                    {inStock ? "Add to Bag" : "Sold Out"}
-                  </span>
-                </>
-              )}
-              {addedAnimation && (
-                <motion.span
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  className="flex items-center gap-2 text-primary"
-                >
-                  ✓ Added to Bag
-                </motion.span>
-              )}
-            </button>
+            <AddToBagButton
+              inStock={effectiveInStock}
+              quantity={quantity}
+              addedLabel="Added to Bag"
+              className="h-11 px-6 text-xs tracking-[0.2em] uppercase"
+              item={{
+                id: createCartItemId({
+                  productId,
+                  color: selectedColor,
+                  size: selectedSize,
+                }),
+                productId,
+                slug,
+                name,
+                price: activePrice,
+                image: imageUrl,
+                color: selectedColorLabel || null,
+                colorHex: selectedColorHex || null,
+                size: selectedSizeLabel || null,
+                stock: effectiveStock,
+              }}
+            />
 
             {/* Wishlist */}
             <button
@@ -309,7 +316,7 @@ export default function ProductInfo({
                 "w-11 h-11 flex items-center justify-center border transition-all duration-300",
                 wishlisted
                   ? "border-destructive/50 bg-destructive/5 text-destructive"
-                  : "border-primary/20 text-primary/50 hover:border-primary/60 hover:text-primary"
+                  : "border-primary/20 text-primary/50 hover:border-primary/60 hover:text-primary",
               )}
               aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
             >
@@ -339,9 +346,7 @@ export default function ProductInfo({
         <Reveal variant="fade" delay={0.44} duration={0.6}>
           <div className="flex flex-col gap-3 pt-1">
             <LineReveal className="h-px bg-primary/10" direction="left" delay={0.44} duration={0.5} />
-            <p className="text-sm  text-primary/60 leading-relaxed">
-              {description}
-            </p>
+            <p className="text-sm text-primary/60 leading-relaxed">{description}</p>
           </div>
         </Reveal>
       )}
@@ -349,11 +354,11 @@ export default function ProductInfo({
       {/* ── Shipping perks ── */}
       <Reveal variant="fade" delay={0.5} duration={0.6}>
         <div className="flex flex-col gap-2 p-4 bg-primary/3 border border-primary/8">
-          <div className="flex items-center gap-3 text-xs  text-primary/60">
+          <div className="flex items-center gap-3 text-xs text-primary/60">
             <HugeiconsIcon icon={TruckIcon} size={14} color="currentColor" strokeWidth={1.5} className="text-accent shrink-0" />
             <span>Free delivery on orders over <strong className="text-primary">GH₵ 500</strong></span>
           </div>
-          <div className="flex items-center gap-3 text-xs  text-primary/60">
+          <div className="flex items-center gap-3 text-xs text-primary/60">
             <HugeiconsIcon icon={ArrowRight01Icon} size={14} color="currentColor" strokeWidth={1.5} className="text-accent shrink-0" />
             <span>Free returns within <strong className="text-primary">30 days</strong> of delivery</span>
           </div>
@@ -362,9 +367,7 @@ export default function ProductInfo({
 
       {/* ── SKU ── */}
       {sku && (
-        <p className="text-[10px]  text-primary/25 tracking-[0.15em]">
-          SKU: {sku}
-        </p>
+        <p className="text-[10px] text-primary/25 tracking-[0.15em]">SKU: {sku}</p>
       )}
     </div>
   );

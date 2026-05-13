@@ -26,7 +26,7 @@ interface CartStore {
   openCart: () => void;
   closeCart: () => void;
   toggleCart: () => void;
-  addItem: (item: Omit<CartItem, "quantity">) => void;
+  addItem: (item: Omit<CartItem, "quantity">, quantity?: number) => number;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
@@ -52,26 +52,48 @@ export const useCartStore = create<CartStore>()(
       closeCart: () => set({ isOpen: false }),
       toggleCart: () => set((s) => ({ isOpen: !s.isOpen })),
 
-      addItem: (newItem) => {
+      addItem: (newItem, quantity = 1) => {
+        const requestedQuantity = Math.max(1, Math.floor(quantity));
+        let addedQuantity = 0;
+        let reachedMaxStock = false;
+
         set((state) => {
           const existing = state.items.find((i) => i.id === newItem.id);
+          const currentQuantity = existing?.quantity ?? 0;
+          const availableQuantity = Math.max(0, newItem.stock - currentQuantity);
+          addedQuantity = Math.min(requestedQuantity, availableQuantity);
+
+          if (addedQuantity === 0) {
+            showToast.maxStockReached(newItem.name);
+            return state;
+          }
+
+          reachedMaxStock = currentQuantity + addedQuantity >= newItem.stock;
+
+          showToast.addedToCart(newItem.name, newItem.size, newItem.color);
+
           if (existing) {
-            showToast.addedToCart(newItem.name, newItem.size, newItem.color);
             return {
               items: state.items.map((i) =>
                 i.id === newItem.id
-                  ? { ...i, quantity: Math.min(i.quantity + 1, i.stock) }
+                  ? { ...i, quantity: i.quantity + addedQuantity }
                   : i,
               ),
               isOpen: true,
             };
           }
-          showToast.addedToCart(newItem.name, newItem.size, newItem.color);
+
           return {
-            items: [...state.items, { ...newItem, quantity: 1 }],
+            items: [...state.items, { ...newItem, quantity: addedQuantity }],
             isOpen: true,
           };
         });
+
+        if (reachedMaxStock) {
+          showToast.maxStockReached(newItem.name);
+        }
+
+        return addedQuantity;
       },
 
       removeItem: (id) => {

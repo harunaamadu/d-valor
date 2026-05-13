@@ -13,6 +13,7 @@ import { SectionTitle } from "@/components/ui/custom/section-title";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { BlogPost, FAKE_POSTS } from "@/data/fake-blog-post";
+import { Button } from "../ui/button";
 
 // ─── Fake data ────────────────────────────────────────────────────────────────
 // Replace with Sanity GROQ fetch when ready:
@@ -78,7 +79,7 @@ function FeaturedCard({ post }: { post: BlogPost }) {
             sizes="(max-width: 768px) 100vw, 66vw"
           />
           <div className="absolute inset-0 bg-linear-to-t from-primary/60 via-primary/10 to-transparent" />
-          <span className="absolute top-4 left-4 z-10 text-[10px] tracking-[0.2em] uppercase  bg-surface/90 text-primary px-3 py-1.5 backdrop-blur-sm">
+          <span className="absolute top-4 left-4 z-10 text-[10px] tracking-[0.2em] uppercase  bg-surface/90 text-neutral-100 px-3 py-1.5 backdrop-blur-sm">
             {post.category}
           </span>
           <span className="absolute top-4 right-4 z-10 text-[10px] tracking-[0.2em] uppercase  bg-accent text-surface px-3 py-1.5">
@@ -103,10 +104,10 @@ function FeaturedCard({ post }: { post: BlogPost }) {
           </p>
 
           {/* Read more */}
-          <div className="flex items-center gap-2 text-xs tracking-[0.18em] uppercase  text-accent mt-1">
+          <Button variant={`ghost`} size={`lg`} className="flex items-center gap-2 text-xs tracking-[0.18em] uppercase text-primary/60 mt-1">
             <span>Read Article</span>
-            <span className="w-4 h-px bg-accent group-hover:w-8 transition-all duration-400" />
-          </div>
+            <span className="w-4 h-px bg-primary/60 group-hover:w-8 transition-all duration-400" />
+          </Button>
         </div>
       </Link>
     </Reveal>
@@ -159,10 +160,10 @@ function SecondaryCard({ post, index }: { post: BlogPost; index: number }) {
         </p>
 
         {/* Arrow CTA */}
-        <div className="flex items-center gap-2 text-[10px] tracking-[0.18em] uppercase  text-accent mt-1">
+        <Button variant={`ghost`} className="flex items-center gap-2 text-[10px] tracking-[0.18em] uppercase text-primary/60 hover:text-primary-hover my-1">
           <span>Read More</span>
-          <span className="w-3 h-px bg-accent group-hover:w-6 transition-all duration-400" />
-        </div>
+          <span className="w-3 h-px bg-primary/60 group-hover:w-6 transition-all duration-400" />
+        </Button>
       </div>
     </Link>
   );

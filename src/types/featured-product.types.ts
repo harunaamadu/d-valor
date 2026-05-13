@@ -10,13 +10,10 @@ import {
 export interface ProductImage {
   /** Image URL */
   src: string;
-
   /** Accessible alt text */
   alt: string;
-
   /** Optional blur placeholder */
   blurDataURL?: string;
-
   /** Marks the primary gallery image */
   isPrimary?: boolean;
 }
@@ -33,6 +30,50 @@ export type ProductTag =
   | "Popular"
   | "Trending"
   | "Exclusive";
+
+// ─────────────────────────────────────────────────────────────
+// Product Category
+// ─────────────────────────────────────────────────────────────
+
+export type ProductCategory =
+  | "Skincare"
+  | "Body Care"
+  | "Hair Care"
+  | "Lip Care"
+  | "Perfumes";
+
+// ─────────────────────────────────────────────────────────────
+// Product Variant
+// ─────────────────────────────────────────────────────────────
+
+export interface ProductVariant {
+  id: string;
+  sku?: string;
+  color?: ColorOption;
+  size?: SizeOption;
+  image?: string;
+  price: number;
+  comparePrice?: number;
+  /**
+   * Total stock for this variant, calculated dynamically from the sum
+   * of `stock` across all ColorOptions associated with this variant.
+   */
+  totalStock: number;
+  inStock: boolean;
+}
+
+// ─────────────────────────────────────────────────────────────
+// Product Review
+// ─────────────────────────────────────────────────────────────
+
+export interface ProductReview {
+  id: string;
+  name: string;
+  avatar?: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
 
 // ─────────────────────────────────────────────────────────────
 // Featured Product
@@ -67,9 +108,15 @@ export interface FeaturedProduct {
   /** Product description */
   description?: string;
 
+  /** Product category */
+  category?: ProductCategory;
+
+  /** Product collections */
+  collections?: string[];
+
   // ─── Pricing ──────────────────────────────────────────────
 
-  /** Current selling price in GHS */
+  /** Current selling price */
   price: number;
 
   /** Previous/original price */
@@ -77,6 +124,9 @@ export interface FeaturedProduct {
 
   /** Currency code */
   currency?: "GHS" | "USD" | "EUR";
+
+  /** Discount percentage */
+  discountPercentage?: number;
 
   // ─── Media ────────────────────────────────────────────────
 
@@ -89,13 +139,19 @@ export interface FeaturedProduct {
   /** Product gallery */
   images?: ProductImage[];
 
+  /** Short promotional video */
+  videoUrl?: string;
+
   // ─── Variants ─────────────────────────────────────────────
 
-  /** Available color variants */
+  /** Available color variants — each carries its own stock count */
   colors?: ColorOption[];
 
   /** Available size variants */
   sizes?: SizeOption[];
+
+  /** Full variants */
+  variants?: ProductVariant[];
 
   /** Selected/default variant id */
   variantId?: string;
@@ -113,6 +169,10 @@ export interface FeaturedProduct {
 
   isTrending?: boolean;
 
+  isLimited?: boolean;
+
+  isExclusive?: boolean;
+
   // ─── Reviews & Ratings ────────────────────────────────────
 
   /** Average rating out of 5 */
@@ -121,9 +181,15 @@ export interface FeaturedProduct {
   /** Number of reviews */
   reviewCount?: number;
 
+  /** Customer reviews */
+  reviews?: ProductReview[];
+
   // ─── Inventory ────────────────────────────────────────────
 
-  /** Quantity in stock */
+  /**
+   * Aggregate quantity in stock across all colour/size combinations.
+   * Derived at runtime: sum of `color.stock` for all ColorOptions.
+   */
   stock?: number;
 
   /** Whether product is available */
@@ -131,6 +197,17 @@ export interface FeaturedProduct {
 
   /** Low stock warning threshold */
   lowStockThreshold?: number;
+
+  /** Sold quantity */
+  soldCount?: number;
+
+  // ─── Shipping ─────────────────────────────────────────────
+
+  /** Free shipping availability */
+  freeShipping?: boolean;
+
+  /** Estimated delivery text */
+  estimatedDelivery?: string;
 
   // ─── SEO / Metadata ───────────────────────────────────────
 
@@ -140,6 +217,9 @@ export interface FeaturedProduct {
   /** SEO description */
   seoDescription?: string;
 
+  /** SEO keywords */
+  seoKeywords?: string[];
+
   // ─── Dates ────────────────────────────────────────────────
 
   /** Created timestamp */
@@ -147,4 +227,7 @@ export interface FeaturedProduct {
 
   /** Updated timestamp */
   updatedAt?: string;
+
+  /** Published timestamp */
+  publishedAt?: string;
 }

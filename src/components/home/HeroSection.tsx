@@ -375,7 +375,7 @@ export default function HeroSection({ slides }: HeroSectionProps) {
         opts={{ loop: true, align: "start" }}
         className="w-full h-full"
       >
-        <CarouselContent className="h-full ml-0 bg-amber-400">
+        <CarouselContent className="h-full ml-0">
           {resolvedSlides.map((s) => (
             <CarouselItem
               key={s.id}

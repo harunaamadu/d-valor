@@ -15,7 +15,7 @@ import Autoplay from "embla-carousel-autoplay";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface HeroSlide {
+export interface HeroSlide {
   id: number;
   eyebrow: string;
   headline: string[]; // split into lines for staggered reveal
@@ -31,7 +31,7 @@ interface HeroSlide {
 
 // ─── Slide Data ───────────────────────────────────────────────────────────────
 
-const slides: HeroSlide[] = [
+export const fallbackHeroSlides: HeroSlide[] = [
   {
     id: 1,
     eyebrow: "Ritual Collection — 2025",
@@ -42,8 +42,8 @@ const slides: HeroSlide[] = [
     secondaryCta: { label: "Discover More", href: "/collections/ritual" },
     tag: "New Arrival",
     bg: "/images/hero/banner_1.png",
-    product: "/images/hero/hero-product-1.png",
-    productAlt: "D'valor Luminous Serum",
+    // product: "/images/hero/hero-product-1.png",
+    // productAlt: "D'valor Luminous Serum",
     accentColor: "#c9a96e",
   },
   {
@@ -56,8 +56,8 @@ const slides: HeroSlide[] = [
     secondaryCta: { label: "Learn the Ritual", href: "/collections/velour" },
     tag: "Bestseller",
     bg: "/images/hero/banner_2.png",
-    product: "/images/hero/hero-product-2.png",
-    productAlt: "D'valor Velour Body Butter",
+    // product: "/images/hero/hero-product-2.png",
+    // productAlt: "D'valor Velour Body Butter",
     accentColor: "#d4b896",
   },
   {
@@ -70,8 +70,8 @@ const slides: HeroSlide[] = [
     secondaryCta: { label: "See Ingredients", href: "/collections/radiance" },
     tag: "Limited Edition",
     bg: "/images/hero/banner_3.png",
-    product: "/images/hero/hero-product-3.png",
-    productAlt: "D'valor Radiance Elixir",
+    // product: "/images/hero/hero-product-3.png",
+    // productAlt: "D'valor Radiance Elixir",
     accentColor: "#e2c97e",
   },
 ];
@@ -150,7 +150,7 @@ function SlideHeadline({ lines }: { lines: string[] }) {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="font-heading font-bold text-4xl sm:text-5xl lg:text-6xl xl:text-7xl leading-[0.95] text-primary"
+            className="font-heading font-bold text-4xl sm:text-5xl lg:text-6xl xl:text-7xl text-primary leading-none"
           >
             {line}
           </motion.h1>
@@ -298,7 +298,6 @@ function SlideProgress({ duration = 6000 }: { duration?: number }) {
   return (
     <div className="w-24 h-0.75 bg-accent/30 overflow-hidden">
       <motion.div
-        key={Date.now()} // remounts on slide change
         className="h-full bg-primary origin-left"
         initial={{ scaleX: 0 }}
         animate={{ scaleX: 1 }}
@@ -336,9 +335,14 @@ function ScrollIndicator() {
 
 const AUTOPLAY_DELAY = 6000;
 
-export default function HeroSection() {
+interface HeroSectionProps {
+  slides?: HeroSlide[];
+}
+
+export default function HeroSection({ slides }: HeroSectionProps) {
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
+  const resolvedSlides = slides?.length ? slides : fallbackHeroSlides;
 
   const autoplay = React.useMemo(
     () => Autoplay({ delay: AUTOPLAY_DELAY, stopOnInteraction: false }),
@@ -362,8 +366,6 @@ export default function HeroSection() {
     [api],
   );
 
-  const slide = slides[current];
-
   return (
     <section className="relative w-full h-screen min-h-145 max-h-240 overflow-hidden bg-backgound">
       {/* ── Shadcn Carousel (handles swipe + autoplay) ── */}
@@ -373,14 +375,20 @@ export default function HeroSection() {
         opts={{ loop: true, align: "start" }}
         className="w-full h-full"
       >
-        <CarouselContent className="h-full ml-0">
-          {slides.map((s) => (
+        <CarouselContent className="h-full ml-0 bg-amber-400">
+          {resolvedSlides.map((s) => (
             <CarouselItem
               key={s.id}
-              className="pl-0 relative w-full h-screen min-h-145 max-h-screen"
+              className="
+                pl-0 relative w-full
+                min-h-175 h-screen max-h-250
+                bg-cover bg-center md:bg-right
+                bg-no-repeat overflow-hidden
+              "
+              style={{ backgroundImage: `url(${s.bg})` }}
             >
               {/* Background */}
-              <div className="absolute inset-0 z-0 wrapper">
+              <div className="absolute inset-0 z-0 wrapper hidden">
                 <Image
                   src={s.bg}
                   alt=""
@@ -473,13 +481,13 @@ export default function HeroSection() {
             </span>
             <div className="w-px h-4 bg-primary/20" />
             <span className="text-xs tracking-[0.15em] text-primary/60">
-              {String(slides.length).padStart(2, "0")}
+              {String(resolvedSlides.length).padStart(2, "0")}
             </span>
           </div>
 
           {/* Center: dots */}
           <PaginationDots
-            count={slides.length}
+            count={resolvedSlides.length}
             active={current}
             onSelect={goTo}
           />

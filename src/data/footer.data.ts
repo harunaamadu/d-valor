@@ -53,8 +53,21 @@ export const BRAND_DIRECTORY = [
       { label: "Shampoos", href: "/shop/hair/shampoos" },
     ],
   },
+  {
+    label: "Perfumes",
+    items: [
+      { label: "Eau de Parfum", href: "/shop/perfumes/eau-de-parfum" },
+      { label: "Eau de Toilette", href: "/shop/perfumes/eau-de-toilette" },
+      { label: "Body Mists", href: "/shop/perfumes/body-mists" },
+      { label: "Perfume Oils", href: "/shop/perfumes/perfume-oils" },
+      { label: "Unisex Fragrances", href: "/shop/perfumes/unisex" },
+      { label: "Floral Scents", href: "/shop/perfumes/floral" },
+      { label: "Woody Scents", href: "/shop/perfumes/woody" },
+      { label: "Fresh Scents", href: "/shop/perfumes/fresh" },
+      { label: "Travel Sizes", href: "/shop/perfumes/travel-size" },
+    ],
+  },
 ];
-
 export const FOOTER_LINKS = [
   {
     heading: "Shop",

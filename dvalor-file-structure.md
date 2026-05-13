@@ -214,7 +214,7 @@ components/
 │   └── PaginationControls.tsx
 │
 ├── cart/
-│   ├── CartDrawer.tsx                   # Slide-in cart sheet
+│   ├── CartDrawer.tsx                   # cart items container
 │   ├── CartItem.tsx
 │   ├── CartSummary.tsx
 │   └── CartEmpty.tsx

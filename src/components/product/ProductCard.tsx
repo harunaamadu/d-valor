@@ -11,6 +11,7 @@ import { ImageReveal } from "@/components/animations/reveal";
 import AddToBagButton from "./AddToBagButton";
 import { createCartItemId } from "@/lib/cart/create-cart-item-id";
 import { ColorOption, SizeOption } from "./ProductVariantSelector";
+import { Separator } from "../ui/separator";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -224,6 +225,8 @@ export default function ProductCard({
                 }}
                 onClick={(e) => e.preventDefault()}
               />
+
+              <Separator orientation="vertical" />
 
               {onQuickView && (
                 <button
